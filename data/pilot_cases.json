@@ -116,10 +116,10 @@
     "d1": [
       "In 2026, a senior AI safety researcher posted a warning about AI risk on X.",
       "Evan Hubinger said there was a greater than 10% chance AI could kill all humans within the next decade.",
-      "His post was a response to another researcher who had recently left Anthropic."
+      "His post received thousands of replies."
     ],
     "target_index": 1,
-    "c5": {"original": "recently", "replacement": "previously"},
+    "c5": {"original": "thousands", "replacement": "hundreds"},
     "d2": "Jacob Coxon, an AI researcher who previously worked at OpenAI, recently quit Anthropic.",
     "d3": "The debate about AI has shifted from whether it poses a risk to how large that risk is.",
     "tricky_distractor": true,

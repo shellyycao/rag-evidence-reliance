@@ -106,6 +106,8 @@ A synthetic benchmark of factual questions, supporting documents, and distractor
 - Full experiment: approximately 30 factual cases.
 - Each case has one target fact, a supporting document D1, and one or two distractors, with programmatically generated intervention variants.
 
+Pilot data are used only to test the pipeline and are excluded from the final analysis; any pilot cases reused in the full set are re-run under the full-set position assignment.
+
 **Familiarity tiers.** Each case is assigned a tier from observed C0 behavior:
 
 - **familiar**: the model answers correctly without evidence;
@@ -119,7 +121,8 @@ The exact C0-based assignment rule is fixed before the full run (see Section 11)
 A fixed set of documents is supplied for each condition, so the same evidence is available across comparable conditions. There is no vector database or managed retrieval service.
 
 - Document IDs are stable across conditions.
-- The position of D1 among the documents is randomized per case with a fixed seed, and the position is logged.
+- **D1 position is counterbalanced** across cases, not independently randomized. Positions 1, 2 and 3 are each used equally often (for the 9 pilot cases, exactly three times each; for a set not divisible by 3, counts differ by at most one). Which case receives which position is assigned with a fixed seed (590). The two distractors fill the remaining slots in seeded order. The order is fixed once per case and reused in every condition, and D1's position is logged for every call. The same scheme is used for the full set.
+- Documents are shown to the model under neutral display IDs based on position ("Doc 1", "Doc 2", "Doc 3"), with a logged mapping to the internal names. When D1 is removed (C2), the remaining documents keep their IDs.
 - The exact evidence sent to the model is recorded for every call.
 
 ## 5. Experimental Conditions
@@ -268,6 +271,7 @@ Any change to this protocol made after the pilot is recorded here with what chan
 |---|---|---|
 | 2026-10-15 | Pre-pilot amendment (before any data): fictional tier replaced by private-fact tier. | Private facts are real but unknown to the model, with ground truth certain to the researcher. |
 | 2026-10-15 | Pre-pilot amendment (before any data): private cases checked at C0; 3/3 correct flagged as lucky-guess and reported separately. | Private facts can occasionally be guessed correctly; flagging avoids counting these as "unknown" knowledge. |
+| 2026-10-15 | Pre-pilot amendment: D1 position counterbalanced instead of independently randomized. | Independent randomization gave an uneven spread across the 9 pilot cases (1, 4 and 4); counterbalancing avoids confounding position with case. |
 
 ## Reference
 
