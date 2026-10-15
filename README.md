@@ -10,7 +10,7 @@ A citation can be *correct* (the cited document supports the claim) without bein
 
 In this run the answers of familiar-tier cases stayed the same when the supporting document was removed or its target sentence deleted, and followed the counterfactual value in 25 of 30 C4 calls. In the obscure and private tiers the model did not give the true value without documents, gave it in every C1 and C5 call, and followed the counterfactual value in every C4 call. With D1 removed or its target sentence deleted it declined or gave a different answer, except for O20, which gave the true value in all 3 C2 calls (its distractor names the other two laureates). All of this is behavioral description of one model, one prompt and a small, hand-built case set. It makes no claim about the model's internal mechanisms. A secondary analysis checks whether a simple retriever can find the supporting document among distractors.
 
-Scope: Project 1 of a larger research program, covering hypotheses H1 and H6 only. The protocol, every amendment, and the timing of each relative to the data are in [docs/protocol_v1.1.md](docs/protocol_v1.1.md).
+Scope: this is Project 1 of a larger research program, and it tests two hypotheses, H1 and H2 (below). The protocol, every amendment, and the timing of each relative to the data are in [docs/protocol_v1.1.md](docs/protocol_v1.1.md).
 
 **Results at a glance** (`full_v1`: one model, 29 cases, 522 calls)
 
@@ -31,12 +31,21 @@ Scope: Project 1 of a larger research program, covering hypotheses H1 and H6 onl
 
 **Citation correctness** is whether the cited document supports the claim. **Citation faithfulness** is whether the cited document influenced the claim. A black-box model gives no direct view of the second, so the project measures behavioral indicators: how the answer and the citations respond to controlled edits of the evidence.
 
-| | Hypothesis | Prediction tested in this run |
-|---|---|---|
-| **H1** | LLMs rely more on pretrained knowledge than on retrieved evidence, shifting toward retrieved evidence when their knowledge is insufficient. The no-evidence answer (C0) is used as an observable proxy for available knowledge, not proof of what was learned. | C4 counterfactual-following is lower for familiar cases than for obscure cases. |
-| **H6** | When an LLM has relevant pretrained knowledge, it answers from that knowledge but still cites retrieved sources to make the answer look credible. | Familiar cases keep their original answer under C3 and C4 while still citing the supporting document (D1). |
+This project tests two hypotheses, each stated and tested on its own.
 
-Hypotheses H2 to H5 (knowledge conflicts, source prioritization, cross-model consistency, reliance when knowledge is missing) belong to Project 2 and are not implemented. An unchanged answer after evidence removal does not by itself show that a citation was post-hoc, and this README does not claim it.
+### H1: pretrained knowledge versus retrieved evidence
+
+- **Hypothesis.** LLMs rely more on their pretrained knowledge than on retrieved evidence when generating answers, and shift toward retrieved evidence when their pretrained knowledge is insufficient.
+- **How it is tested.** The no-evidence answer (C0) is an observable proxy for available knowledge, not proof of what the model learned. Cases are grouped into tiers from that behavior, and the tiers are compared on how their answers respond to counterfactual and removed evidence.
+- **Prediction.** C4 counterfactual-following is lower for familiar cases than for obscure cases.
+
+### H2: post-hoc citation of pretrained knowledge
+
+- **Hypothesis.** When an LLM has relevant pretrained knowledge, it answers from that knowledge but still cites retrieved sources to make the answer look credible.
+- **How it is tested.** With evidence interventions: whether familiar cases keep their answer when the cited document is removed (C2) or its target sentence is deleted (C3), and whether they still cite that document. An unchanged answer after evidence removal does not by itself show that a citation was post-hoc, and this README does not claim it.
+- **Prediction.** Familiar cases keep their original answer under C3 and C4 while still citing the supporting document (D1).
+
+The research program this project belongs to has further hypotheses (knowledge conflicts, source prioritization, cross-model consistency, reliance when knowledge is missing). They are planned for Project 2 and are not tested here. The protocol and the analysis report number hypotheses across the whole program, so H2 here appears there as H6.
 
 ## Related work
 
@@ -214,7 +223,7 @@ All 72 are the same string and all fall in the obscure and private tiers (15 of 
 
 ### Pre-registered predictions (descriptive)
 - **H1:** the difference in mean C4 counterfactual-following, familiar minus obscure, was -0.17 [-0.40, 0.00]; familiar minus private was also -0.17 [-0.40, 0.00]. The familiar tier followed the counterfactual value less often than the other tiers, in this sample.
-- **H6:** familiar cases kept the true value in 30/30 C3 calls but cited D1 in 6 of them; in C4 they kept the true value in 5/30 calls, and all 5 cited D1.
+- **H2:** familiar cases kept the true value in 30/30 C3 calls but cited D1 in 6 of them; in C4 they kept the true value in 5/30 calls, and all 5 cited D1.
 
 ### Exploratory: D1 position
 C4 counterfactual-following was 28/30 calls with D1 in position 1, 30/30 in position 2 and 24/27 in position 3. Position is counterbalanced across cases, not within a case, and is confounded with tier mix.
@@ -267,7 +276,7 @@ The scorer marks this citation *unsupported*, because the cited text no longer c
 
 ## Future work (Project 2)
 
-- **Hypotheses H2 to H5:** whether models rely more on retrieved evidence when it contradicts what they know (H2), how they prioritize prompt input, pretrained knowledge and retrieved evidence (H3), whether patterns hold across models (H4), and reliance on retrieved evidence when no relevant knowledge exists (H5, which needs an operational test of "no knowledge").
+- **Further hypotheses from the research program:** whether models rely more on retrieved evidence when it contradicts what they know, how they prioritize prompt input, pretrained knowledge and retrieved evidence, whether patterns hold across models, and reliance on retrieved evidence when no relevant knowledge exists (which needs an operational test of "no knowledge").
 - **Multiple models**, ideally including different families and open-weight models, where internal methods become possible.
 - **Misinformation difficulty:** obvious versus plausible false evidence, and the same conflicts placed in the prompt versus in retrieved documents.
 - **The pre-registered secondary modes:** run the embedding retriever (Titan Text Embeddings, model ID still to be verified), and the RAG-generation mode in which the top-3 retrieved documents are sent to the model for C1 to C5. A new filler version with same-topic hard negatives for the 20 added cases would be needed to extend retrieval to the full set.
