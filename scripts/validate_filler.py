@@ -4,6 +4,7 @@ Checks: unique ids, expected type counts, no case answer/accepted/counterfactual
 hard negatives name a real case and share a content word with it, sane length, no near-duplicate of a case
 document, and no filler doc that contains a case's D1 target sentence.
 """
+import argparse
 import json
 import re
 import sys
@@ -30,7 +31,11 @@ def content_words(text):
 
 
 def main():
-    cases = {c["case_id"]: c for c in json.loads((ROOT / "data" / "pilot_cases.json").read_text())}
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--cases", default=str(ROOT / "data" / "pilot_cases.json"),
+                    help="cases file to validate the filler against (default: the pilot cases)")
+    args = ap.parse_args()
+    cases = {c["case_id"]: c for c in json.loads(Path(args.cases).read_text())}
     docs = json.loads((ROOT / "data" / "filler_docs.json").read_text())
     failures = []
 

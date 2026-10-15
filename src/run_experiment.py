@@ -11,18 +11,18 @@ from logging_utils import append_record, call_key, estimate_cost, load_done, log
 from prompts import INFERENCE_CONFIG, PROMPT_VERSION, TOOL_CONFIG, build_prompt
 from smoke_test import MODEL_ID, PRICE_IN_PER_M, PRICE_OUT_PER_M, PROFILE, REGION
 
-CONDITIONS_PATH = Path(__file__).resolve().parent.parent / "data" / "pilot_conditions.jsonl"
+CONDITIONS_PATH = Path(__file__).resolve().parent.parent / "data" / "pilot_conditions.jsonl"  # default
 
-# Dry-run token estimate, calibrated on the one measured call (C1, 3 docs: 902 in / 106 out):
-# the forced tool-use schema adds a fixed overhead; the rest is roughly 4 characters per token.
-TOOL_OVERHEAD_TOKENS = 750
+# Dry-run token estimate, calibrated on the 162 measured pilot_v3 calls (prompt v3): the forced tool-use schema adds a
+# fixed overhead of about 895 tokens beyond roughly 4 characters per token, and the mean output was about 150 tokens.
+TOOL_OVERHEAD_TOKENS = 895
 CHARS_PER_TOKEN = 4
-EST_OUTPUT_TOKENS = 110
+EST_OUTPUT_TOKENS = 150
 MAX_CONSECUTIVE_ERRORS = 3
 
 
-def load_conditions():
-    return [json.loads(line) for line in CONDITIONS_PATH.read_text().splitlines() if line.strip()]
+def load_conditions(path=CONDITIONS_PATH):
+    return [json.loads(line) for line in Path(path).read_text().splitlines() if line.strip()]
 
 
 def jobs(conditions, repeats):
@@ -53,7 +53,7 @@ def dry_run(all_jobs, path):
     print(f"calls in plan: {len(all_jobs)}  |  already logged (skipped): {len(all_jobs) - len(todo)}  |  to run: {len(todo)}")
     print(f"estimated tokens: in~{sum(e[0] for e in est):,.0f}, out~{sum(e[1] for e in est):,.0f}")
     print(f"estimated cost: ${total:.2f} at ${PRICE_IN_PER_M}/${PRICE_OUT_PER_M} per M tokens "
-          f"(heuristic from one measured call; real cost is logged per call)")
+          f"(heuristic calibrated on the pilot_v3 calls; real cost is logged per call)")
     print("real run requires --confirm")
 
 
@@ -109,12 +109,14 @@ def main():
     ap.add_argument("--run-name", default="pilot", help="log file is results/<run-name>.jsonl")
     ap.add_argument("--limit-case", nargs="+", metavar="CASE_ID",
                     help="only run these case IDs (for example --limit-case F3 P1)")
+    ap.add_argument("--conditions-file", default=str(CONDITIONS_PATH),
+                    help="conditions JSONL from interventions.py (default: the pilot conditions)")
     ap.add_argument("--repeats", type=int, default=3)
     ap.add_argument("--dry-run", action="store_true", help="build prompts and estimate cost; no API calls")
     ap.add_argument("--confirm", action="store_true", help="required to make real API calls")
     args = ap.parse_args()
 
-    conditions = load_conditions()
+    conditions = load_conditions(args.conditions_file)
     if args.limit_case:
         unknown = set(args.limit_case) - {c["case_id"] for c in conditions}
         if unknown:

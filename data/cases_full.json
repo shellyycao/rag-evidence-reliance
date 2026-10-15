@@ -1,0 +1,782 @@
+[
+  {
+    "case_id": "F3",
+    "tier": "familiar",
+    "domain": "wildlife",
+    "question": "What is the largest animal known to have ever lived?",
+    "answer": "blue whale",
+    "accepted_answers": [
+      "blue whale"
+    ],
+    "source": "https://en.wikipedia.org/wiki/Blue_whale",
+    "counterfactual_value": "fin whale",
+    "d1": [
+      "Whales are marine mammals found in every ocean.",
+      "The blue whale is the largest animal known to have ever lived.",
+      "Most baleen whales feed on krill."
+    ],
+    "target_index": 1,
+    "c5": {
+      "original": "krill",
+      "replacement": "small fish"
+    },
+    "d2": "Baleen whales filter food from seawater using plates made of keratin.",
+    "d3": "Many whale species migrate thousands of kilometers each year.",
+    "tricky_distractor": false,
+    "notes": "Tier label is provisional until C0 is run."
+  },
+  {
+    "case_id": "F5",
+    "tier": "familiar",
+    "domain": "art",
+    "question": "Who painted the Mona Lisa?",
+    "answer": "Leonardo da Vinci",
+    "accepted_answers": [
+      "leonardo da vinci",
+      "da vinci",
+      "leonardo"
+    ],
+    "source": "https://en.wikipedia.org/wiki/Mona_Lisa",
+    "counterfactual_value": "Raphael",
+    "d1": [
+      "The Mona Lisa is a portrait from the early sixteenth century.",
+      "It was painted by Leonardo da Vinci.",
+      "Today it hangs in the Louvre in Paris."
+    ],
+    "target_index": 1,
+    "c5": {
+      "original": "Louvre",
+      "replacement": "Musée d'Orsay"
+    },
+    "d2": "The Renaissance was a period of renewed interest in art and science in Europe.",
+    "d3": "Oil paint became widely used by European painters in the fifteenth century.",
+    "tricky_distractor": false,
+    "notes": "Tier label is provisional until C0 is run."
+  },
+  {
+    "case_id": "F6",
+    "tier": "familiar",
+    "domain": "history",
+    "question": "In what year did the Berlin Wall fall?",
+    "answer": "1989",
+    "accepted_answers": [
+      "1989"
+    ],
+    "source": "https://en.wikipedia.org/wiki/Berlin_Wall",
+    "counterfactual_value": "1991",
+    "d1": [
+      "The Berlin Wall divided East and West Berlin during the Cold War.",
+      "It fell in 1989.",
+      "The wall stood about 3.6 meters tall."
+    ],
+    "target_index": 1,
+    "c5": {
+      "original": "3.6",
+      "replacement": "4.2"
+    },
+    "d2": "Germany was reunified in 1990.",
+    "d3": "Berlin is the capital of Germany.",
+    "tricky_distractor": true,
+    "notes": "D2 contains a near-miss year (1990). Tier label is provisional until C0 is run."
+  },
+  {
+    "case_id": "O11",
+    "tier": "obscure",
+    "domain": "tech",
+    "question": "On what date was Claude Sonnet 5.5 released?",
+    "answer": "September 28, 2026",
+    "accepted_answers": [
+      "september 28, 2026",
+      "sept 28, 2026",
+      "sep 28, 2026",
+      "2026-09-28",
+      "28 september 2026"
+    ],
+    "source": "https://www.anthropic.com/claude-sonnet-5-5",
+    "counterfactual_value": "October 6, 2026",
+    "d1": [
+      "Claude Sonnet 5.5 is a large language model developed by Anthropic.",
+      "It was released on September 28, 2026.",
+      "It is designed mainly for coding and knowledge work."
+    ],
+    "target_index": 1,
+    "c5": {
+      "original": "coding",
+      "replacement": "translation"
+    },
+    "d2": "Claude Sonnet 5 was released on June 30, 2026.",
+    "d3": "Language models are trained on large collections of text.",
+    "tricky_distractor": true,
+    "notes": "Post-training-cutoff fact. D2 contains a near-miss date. Tier label is provisional until C0 is run."
+  },
+  {
+    "case_id": "O12",
+    "tier": "obscure",
+    "domain": "sports",
+    "question": "Who won the 2026 US Open men's singles title?",
+    "answer": "Alexander Zverev",
+    "accepted_answers": [
+      "alexander zverev",
+      "zverev"
+    ],
+    "source": "https://www.drishtiias.com/state-pcs-current-affairs/alexander-zverev-wins-2026-us-open-title",
+    "counterfactual_value": "Ben Shelton",
+    "d1": [
+      "The 2026 US Open tennis tournament was held in New York.",
+      "Alexander Zverev won the men's singles title.",
+      "The final was played in Arthur Ashe Stadium."
+    ],
+    "target_index": 1,
+    "c5": {
+      "original": "Arthur Ashe",
+      "replacement": "Louis Armstrong"
+    },
+    "d2": "Ben Shelton reached the 2026 US Open men's singles final.",
+    "d3": "The US Open is one of tennis's four Grand Slam tournaments.",
+    "tricky_distractor": true,
+    "notes": "Current event. D2 names a plausible wrong answer (the finalist). Tier label is provisional until C0 is run."
+  },
+  {
+    "case_id": "O13",
+    "tier": "obscure",
+    "domain": "AI safety",
+    "question": "Which Anthropic safety researcher wrote on X that there is a greater than 10% chance AI could kill all humans within the next decade?",
+    "answer": "Evan Hubinger",
+    "accepted_answers": [
+      "evan hubinger",
+      "hubinger"
+    ],
+    "source": "https://www.bbc.com/news/articles/ckgwy1k42w4o ; https://x.com/EvanHub/status/2097497037956891126",
+    "counterfactual_value": "Daniel Mercer",
+    "d1": [
+      "In 2026, a senior AI safety researcher posted a warning about AI risk on X.",
+      "Evan Hubinger said there was a greater than 10% chance AI could kill all humans within the next decade.",
+      "His post received thousands of replies."
+    ],
+    "target_index": 1,
+    "c5": {
+      "original": "thousands",
+      "replacement": "hundreds"
+    },
+    "d2": "Jacob Coxon, an AI researcher who previously worked at OpenAI, recently quit Anthropic.",
+    "d3": "The debate about AI has shifted from whether it poses a risk to how large that risk is.",
+    "tricky_distractor": true,
+    "notes": "C4 uses an invented name to avoid misattributing a quote to a real person. Sensitive topic (AI risk, same company as the model): flag in limitations. Tier label is provisional until C0 is run."
+  },
+  {
+    "case_id": "P1",
+    "tier": "private",
+    "domain": "personal (pets)",
+    "question": "What breed is Shelly's older cat?",
+    "answer": "Bengal",
+    "accepted_answers": [
+      "bengal"
+    ],
+    "source": "researcher (private fact)",
+    "counterfactual_value": "Maine Coon",
+    "d1": [
+      "Shelly has two male cats.",
+      "Her older cat is a Bengal.",
+      "Both cats are around four years old."
+    ],
+    "target_index": 1,
+    "c5": {
+      "original": "four",
+      "replacement": "five"
+    },
+    "d2": "Shelly's younger cat is a Siberian.",
+    "d3": "Cats are among the most popular pets in the world.",
+    "tricky_distractor": true,
+    "notes": "D2 names the other cat's breed (near-miss answer). Tier label is provisional until C0 is run."
+  },
+  {
+    "case_id": "P2",
+    "tier": "private",
+    "domain": "personal (gaming)",
+    "question": "How many hours has Shelly spent playing The Legend of Zelda games in total?",
+    "answer": "400 hours",
+    "accepted_answers": [
+      "400",
+      "400 hours"
+    ],
+    "source": "researcher (private fact)",
+    "counterfactual_value": "650 hours",
+    "d1": [
+      "The Legend of Zelda is Shelly's favorite video game series of all time.",
+      "She has spent about 400 hours playing Zelda games in total.",
+      "She played Tears of the Kingdom before Breath of the Wild."
+    ],
+    "target_index": 1,
+    "c5": {
+      "original": "Tears of the Kingdom before Breath of the Wild",
+      "replacement": "Breath of the Wild before Tears of the Kingdom"
+    },
+    "d2": "The Legend of Zelda is a video game series created by Nintendo.",
+    "d3": "Tears of the Kingdom was released in 2023 as a sequel to Breath of the Wild.",
+    "tricky_distractor": false,
+    "notes": "Tier label is provisional until C0 is run."
+  },
+  {
+    "case_id": "P3",
+    "tier": "private",
+    "domain": "personal (writing)",
+    "question": "How many words was the first long story Shelly wrote?",
+    "answer": "200,000 words",
+    "accepted_answers": [
+      "200,000",
+      "200000",
+      "200,000 words"
+    ],
+    "source": "researcher (private fact)",
+    "counterfactual_value": "120,000 words",
+    "d1": [
+      "Shelly spent a year writing her first long creative story.",
+      "It reached about 200,000 words.",
+      "She wrote most of it at Starbucks."
+    ],
+    "target_index": 1,
+    "c5": {
+      "original": "Starbucks",
+      "replacement": "the library"
+    },
+    "d2": "A typical published novel is between 70,000 and 100,000 words long.",
+    "d3": "Many writers draft long stories over several months or years.",
+    "tricky_distractor": true,
+    "notes": "D2 contains near-miss word counts. Tier label is provisional until C0 is run."
+  },
+  {
+    "case_id": "F7",
+    "tier": "familiar",
+    "domain": "space",
+    "question": "In what year did Apollo 11 land on the Moon?",
+    "answer": "1969",
+    "accepted_answers": [
+      "1969"
+    ],
+    "source": "https://en.wikipedia.org/wiki/Apollo_11",
+    "counterfactual_value": "1970",
+    "d1": [
+      "Apollo 11 was a NASA crewed spaceflight mission.",
+      "It landed on the Moon in 1969.",
+      "The mission's crew included three astronauts."
+    ],
+    "target_index": 1,
+    "c5": {
+      "original": "three",
+      "replacement": "four"
+    },
+    "d2": "The Saturn V rocket launched the Apollo missions.",
+    "d3": "NASA was established in 1958 as a civilian space agency.",
+    "tricky_distractor": false,
+    "notes": "Tier label is provisional until C0 is run."
+  },
+  {
+    "case_id": "F8",
+    "tier": "familiar",
+    "domain": "science history",
+    "question": "What year did Marie Curie receive her second Nobel Prize?",
+    "answer": "1911",
+    "accepted_answers": [
+      "1911"
+    ],
+    "source": "https://en.wikipedia.org/wiki/Marie_Curie",
+    "counterfactual_value": "1913",
+    "d1": [
+      "Marie Curie was a physicist and chemist who studied radioactivity.",
+      "She received her second Nobel Prize in 1911.",
+      "She later founded the Radium Institute in Paris."
+    ],
+    "target_index": 1,
+    "c5": {
+      "original": "Paris",
+      "replacement": "Lyon"
+    },
+    "d2": "Curie was born in Warsaw in 1867 and moved to Paris in 1891.",
+    "d3": "The Nobel Prizes are awarded each year at ceremonies in Stockholm.",
+    "tricky_distractor": true,
+    "notes": "D2 contains other years. Tier label is provisional until C0 is run."
+  },
+  {
+    "case_id": "F9",
+    "tier": "familiar",
+    "domain": "geography",
+    "question": "What is the capital city of Australia?",
+    "answer": "Canberra",
+    "accepted_answers": [
+      "canberra"
+    ],
+    "source": "https://en.wikipedia.org/wiki/Canberra",
+    "counterfactual_value": "Sydney",
+    "d1": [
+      "Australia is a country made up of six states and two major mainland territories.",
+      "Its capital city is Canberra.",
+      "It is the sixth-largest country in the world by area."
+    ],
+    "target_index": 1,
+    "c5": {
+      "original": "sixth",
+      "replacement": "seventh"
+    },
+    "d2": "Australia's population is concentrated along its eastern and southeastern coasts.",
+    "d3": "The Australian Parliament has two chambers.",
+    "tricky_distractor": false,
+    "notes": "Tier label is provisional until C0 is run."
+  },
+  {
+    "case_id": "F10",
+    "tier": "familiar",
+    "domain": "biology",
+    "question": "How many bones are in the adult human body?",
+    "answer": "206",
+    "accepted_answers": [
+      "206",
+      "206 bones"
+    ],
+    "source": "https://en.wikipedia.org/wiki/Human_skeleton",
+    "counterfactual_value": "212",
+    "d1": [
+      "The human skeleton supports the body and protects internal organs.",
+      "An adult human body has 206 bones.",
+      "The longest bone in the body is the femur."
+    ],
+    "target_index": 1,
+    "c5": {
+      "original": "femur",
+      "replacement": "tibia"
+    },
+    "d2": "Babies are born with more bones than adults because some bones fuse over time.",
+    "d3": "Calcium is important for healthy bones.",
+    "tricky_distractor": false,
+    "notes": "Tier label is provisional until C0 is run."
+  },
+  {
+    "case_id": "F11",
+    "tier": "familiar",
+    "domain": "astronomy",
+    "question": "Which planet is known as the Red Planet?",
+    "answer": "Mars",
+    "accepted_answers": [
+      "mars"
+    ],
+    "source": "https://en.wikipedia.org/wiki/Mars",
+    "counterfactual_value": "Venus",
+    "d1": [
+      "Several planets in the Solar System can be seen from Earth without a telescope.",
+      "Mars is known as the Red Planet.",
+      "Planets closer to the Sun complete their orbits faster."
+    ],
+    "target_index": 1,
+    "c5": {
+      "original": "faster",
+      "replacement": "more slowly"
+    },
+    "d2": "Jupiter has a giant storm called the Great Red Spot.",
+    "d3": "Astronomers use telescopes to study the surfaces of planets.",
+    "tricky_distractor": true,
+    "notes": "D2 contains a near-miss. Tier label is provisional until C0 is run."
+  },
+  {
+    "case_id": "F12",
+    "tier": "familiar",
+    "domain": "literature",
+    "question": "Who wrote the play Romeo and Juliet?",
+    "answer": "William Shakespeare",
+    "accepted_answers": [
+      "william shakespeare",
+      "shakespeare"
+    ],
+    "source": "https://en.wikipedia.org/wiki/Romeo_and_Juliet",
+    "counterfactual_value": "Christopher Marlowe",
+    "d1": [
+      "Romeo and Juliet is a tragedy about two young lovers from feuding families.",
+      "It was written by William Shakespeare.",
+      "The play is set in the Italian city of Verona."
+    ],
+    "target_index": 1,
+    "c5": {
+      "original": "Verona",
+      "replacement": "Padua"
+    },
+    "d2": "Elizabethan theater companies often performed in open-air playhouses.",
+    "d3": "Many plays from the late sixteenth century are still performed today.",
+    "tricky_distractor": false,
+    "notes": "Tier label is provisional until C0 is run."
+  },
+  {
+    "case_id": "F13",
+    "tier": "familiar",
+    "domain": "physics",
+    "question": "Who developed the theory of general relativity?",
+    "answer": "Albert Einstein",
+    "accepted_answers": [
+      "albert einstein",
+      "einstein"
+    ],
+    "source": "https://en.wikipedia.org/wiki/General_relativity",
+    "counterfactual_value": "Max Planck",
+    "d1": [
+      "General relativity is a theory that describes gravity as the curvature of spacetime.",
+      "It was developed by Albert Einstein.",
+      "The theory was published in 1915."
+    ],
+    "target_index": 1,
+    "c5": {
+      "original": "1915",
+      "replacement": "1917"
+    },
+    "d2": "Isaac Newton described gravity as a force between masses.",
+    "d3": "Black holes are regions where gravity is so strong that light cannot escape.",
+    "tricky_distractor": true,
+    "notes": "D2 names another physicist. Tier label is provisional until C0 is run."
+  },
+  {
+    "case_id": "O14",
+    "tier": "obscure",
+    "domain": "sports",
+    "question": "Which country won the 2026 FIFA World Cup?",
+    "answer": "Spain",
+    "accepted_answers": [
+      "spain"
+    ],
+    "source": "https://goodmorningamerica.com/culture/story/spain-argentina-win-2026-world-cup-134824556",
+    "counterfactual_value": "Argentina",
+    "d1": [
+      "The 2026 FIFA World Cup was hosted by the United States, Canada and Mexico.",
+      "Spain won the tournament.",
+      "It was the first World Cup with 48 teams."
+    ],
+    "target_index": 1,
+    "c5": {
+      "original": "48",
+      "replacement": "40"
+    },
+    "d2": "Argentina reached the 2026 World Cup final.",
+    "d3": "The World Cup is held every four years.",
+    "tricky_distractor": true,
+    "notes": "D2 names the real finalist, which is also the counterfactual value. Tier label is provisional until C0 is run."
+  },
+  {
+    "case_id": "O15",
+    "tier": "obscure",
+    "domain": "literature",
+    "question": "Who won the 2026 Nobel Prize in Literature?",
+    "answer": "Anne Carson",
+    "accepted_answers": [
+      "anne carson",
+      "carson"
+    ],
+    "source": "https://www.nobelprize.org/prizes/literature/2026/",
+    "counterfactual_value": "Miriam Ostrander",
+    "d1": [
+      "The 2026 Nobel Prize in Literature was announced in October.",
+      "It was awarded to the Canadian writer Anne Carson.",
+      "The announcement was made in Stockholm."
+    ],
+    "target_index": 1,
+    "c5": {
+      "original": "Stockholm",
+      "replacement": "Oslo"
+    },
+    "d2": "The Nobel Prize in Literature is awarded by the Swedish Academy.",
+    "d3": "Poetry and essays are among the forms recognized by literary prizes.",
+    "tricky_distractor": false,
+    "notes": "Counterfactual is an invented name. Tier label is provisional until C0 is run."
+  },
+  {
+    "case_id": "O16",
+    "tier": "obscure",
+    "domain": "physics",
+    "question": "Who won the 2026 Nobel Prize in Physics?",
+    "answer": "Francis Halzen",
+    "accepted_answers": [
+      "francis halzen",
+      "halzen"
+    ],
+    "source": "https://www.nobelprize.org/prizes/physics/2026/",
+    "counterfactual_value": "Pieter Vandermeer",
+    "d1": [
+      "The 2026 Nobel Prize in Physics was announced in October.",
+      "It was awarded to Francis Halzen.",
+      "Physics laureates usually give a lecture in December."
+    ],
+    "target_index": 1,
+    "c5": {
+      "original": "December",
+      "replacement": "November"
+    },
+    "d2": "Neutrinos are tiny particles that rarely interact with matter.",
+    "d3": "The Nobel Prize in Physics is awarded by the Royal Swedish Academy of Sciences.",
+    "tricky_distractor": false,
+    "notes": "Counterfactual is an invented name. Spec asks to check whether the prize was shared. Tier label is provisional until C0 is run."
+  },
+  {
+    "case_id": "O17",
+    "tier": "obscure",
+    "domain": "chemistry",
+    "question": "Who shared the 2026 Nobel Prize in Chemistry with Henri Kagan?",
+    "answer": "Kenso Soai",
+    "accepted_answers": [
+      "kenso soai",
+      "soai"
+    ],
+    "source": "https://www.nobelprize.org/prizes/chemistry/2026/",
+    "counterfactual_value": "Takeshi Morimura",
+    "d1": [
+      "The 2026 Nobel Prize in Chemistry was announced in October.",
+      "Henri Kagan shared the prize with Kenso Soai.",
+      "The announcement was followed by interviews with the laureates."
+    ],
+    "target_index": 1,
+    "c5": {
+      "original": "interviews",
+      "replacement": "lectures"
+    },
+    "d2": "Henri Kagan is a French chemist.",
+    "d3": "Chemistry prizes often recognize new methods for building molecules.",
+    "tricky_distractor": true,
+    "notes": "Counterfactual is an invented name. D2 names the co-laureate, not the answer. Tier label is provisional until C0 is run."
+  },
+  {
+    "case_id": "O18",
+    "tier": "obscure",
+    "domain": "AI/tech",
+    "question": "On what date were Claude Fable 5 and Claude Mythos 5 first released?",
+    "answer": "June 9, 2026",
+    "accepted_answers": [
+      "june 9, 2026",
+      "jun 9, 2026",
+      "2026-06-09",
+      "9 june 2026"
+    ],
+    "source": "https://www.anthropic.com/news/fable-mythos-access",
+    "counterfactual_value": "June 16, 2026",
+    "d1": [
+      "Claude Fable 5 and Claude Mythos 5 are models developed by Anthropic.",
+      "They were first released on June 9, 2026.",
+      "They share the same underlying model."
+    ],
+    "target_index": 1,
+    "c5": {
+      "original": "the same",
+      "replacement": "a different"
+    },
+    "d2": "Anthropic restored access to Claude Fable 5 and Claude Mythos 5 on July 1, 2026.",
+    "d3": "Anthropic also develops the Claude Opus family of models.",
+    "tricky_distractor": true,
+    "notes": "D2 contains a near-miss date. Tier label is provisional until C0 is run."
+  },
+  {
+    "case_id": "O19",
+    "tier": "obscure",
+    "domain": "sports",
+    "question": "Who won the 2026 Wimbledon men's singles title?",
+    "answer": "Jannik Sinner",
+    "accepted_answers": [
+      "jannik sinner",
+      "sinner"
+    ],
+    "source": "https://www.atptour.com/en/news/wimbledon-2026-champion-prize-money",
+    "counterfactual_value": "Lukas Brenner",
+    "d1": [
+      "The 2026 Wimbledon Championships were held in London.",
+      "Jannik Sinner won the men's singles title.",
+      "Wimbledon is played on grass courts."
+    ],
+    "target_index": 1,
+    "c5": {
+      "original": "grass",
+      "replacement": "clay"
+    },
+    "d2": "Wimbledon is the oldest tennis tournament in the world.",
+    "d3": "Tennis players often change tactics between different court surfaces.",
+    "tricky_distractor": false,
+    "notes": "Counterfactual is an invented name. Guessable (top player): C0 may flag it as known or a lucky guess. Tier label is provisional until C0 is run."
+  },
+  {
+    "case_id": "O20",
+    "tier": "obscure",
+    "domain": "medicine",
+    "question": "Which Stanford University scientist shared the 2026 Nobel Prize in Physiology or Medicine?",
+    "answer": "Karl Deisseroth",
+    "accepted_answers": [
+      "karl deisseroth",
+      "deisseroth"
+    ],
+    "source": "https://www.nobelprize.org/prizes/medicine/2026/",
+    "counterfactual_value": "Daniel Hartwell",
+    "d1": [
+      "The 2026 Nobel Prize in Physiology or Medicine recognized research into brain activity.",
+      "Karl Deisseroth of Stanford University was one of the three laureates.",
+      "The prize was announced in early October."
+    ],
+    "target_index": 1,
+    "c5": {
+      "original": "early",
+      "replacement": "late"
+    },
+    "d2": "Peter Hegemann and Georg Nagel also shared the 2026 prize.",
+    "d3": "Neuroscientists study how nerve cells send signals.",
+    "tricky_distractor": true,
+    "notes": "Counterfactual is an invented name. D2 names the real co-laureates. Possibly guessable (long-predicted laureate). Tier label is provisional until C0 is run."
+  },
+  {
+    "case_id": "P4",
+    "tier": "private",
+    "domain": "personal (cooking)",
+    "question": "What dish does Shelly cook most often?",
+    "answer": "tomato scrambled eggs",
+    "accepted_answers": [
+      "tomato scrambled eggs",
+      "scrambled eggs with tomato",
+      "tomato and egg",
+      "tomato eggs"
+    ],
+    "source": "researcher (private fact)",
+    "counterfactual_value": "mushroom fried rice",
+    "d1": [
+      "Shelly enjoys cooking simple meals at home.",
+      "The dish she cooks most often is tomato scrambled eggs.",
+      "She usually cooks on weekday evenings."
+    ],
+    "target_index": 1,
+    "c5": {
+      "original": "weekday",
+      "replacement": "weekend"
+    },
+    "d2": "Home cooking can be cheaper than eating at restaurants.",
+    "d3": "Many quick recipes take less than twenty minutes.",
+    "tricky_distractor": false,
+    "notes": "Tier label is provisional until C0 is run."
+  },
+  {
+    "case_id": "P5",
+    "tier": "private",
+    "domain": "personal (tech)",
+    "question": "What laptop model does Shelly use?",
+    "answer": "MacBook Air",
+    "accepted_answers": [
+      "macbook air"
+    ],
+    "source": "researcher (private fact)",
+    "counterfactual_value": "Dell XPS 13",
+    "d1": [
+      "Shelly does most of her coursework on a laptop.",
+      "Her laptop is a MacBook Air.",
+      "She keeps it in a gray sleeve."
+    ],
+    "target_index": 1,
+    "c5": {
+      "original": "gray",
+      "replacement": "blue"
+    },
+    "d2": "Many students use laptops for programming and writing.",
+    "d3": "Laptop batteries slowly lose capacity over years of use.",
+    "tricky_distractor": false,
+    "notes": "Somewhat guessable. Tier label is provisional until C0 is run."
+  },
+  {
+    "case_id": "P6",
+    "tier": "private",
+    "domain": "personal (travel)",
+    "question": "What was the last city Shelly traveled to?",
+    "answer": "Pigeon Forge",
+    "accepted_answers": [
+      "pigeon forge"
+    ],
+    "source": "researcher (private fact)",
+    "counterfactual_value": "Gatlinburg",
+    "d1": [
+      "Shelly recently took a short trip.",
+      "The last city she traveled to was Pigeon Forge.",
+      "She traveled there by car."
+    ],
+    "target_index": 1,
+    "c5": {
+      "original": "car",
+      "replacement": "train"
+    },
+    "d2": "The Great Smoky Mountains are a popular destination for road trips.",
+    "d3": "Short trips are a common way to take a break during the semester.",
+    "tricky_distractor": true,
+    "notes": "D2 gives a regional hint. Tier label is provisional until C0 is run."
+  },
+  {
+    "case_id": "P7",
+    "tier": "private",
+    "domain": "personal (food & drink)",
+    "question": "What is Shelly's favorite coffee order?",
+    "answer": "espresso with cold foam",
+    "accepted_answers": [
+      "espresso with cold foam"
+    ],
+    "source": "researcher (private fact)",
+    "counterfactual_value": "iced oat milk latte",
+    "d1": [
+      "Shelly drinks coffee most mornings.",
+      "Her favorite order is an espresso with cold foam.",
+      "She usually orders a small size."
+    ],
+    "target_index": 1,
+    "c5": {
+      "original": "small",
+      "replacement": "large"
+    },
+    "d2": "Cold foam is made by frothing cold milk.",
+    "d3": "Many cafes offer seasonal drinks in the fall.",
+    "tricky_distractor": true,
+    "notes": "D2 partially overlaps the answer. Tier label is provisional until C0 is run."
+  },
+  {
+    "case_id": "P8",
+    "tier": "private",
+    "domain": "personal (movies)",
+    "question": "What is Shelly's favorite movie?",
+    "answer": "How to Train Your Dragon",
+    "accepted_answers": [
+      "how to train your dragon"
+    ],
+    "source": "researcher (private fact)",
+    "counterfactual_value": "Spirited Away",
+    "d1": [
+      "Shelly enjoys watching animated films.",
+      "Her favorite movie is How to Train Your Dragon.",
+      "She usually watches movies on weekends."
+    ],
+    "target_index": 1,
+    "c5": {
+      "original": "weekends",
+      "replacement": "weeknights"
+    },
+    "d2": "Animated films are often enjoyed by both children and adults.",
+    "d3": "Many popular movies are adapted from books.",
+    "tricky_distractor": false,
+    "notes": "Tier label is provisional until C0 is run."
+  },
+  {
+    "case_id": "P9",
+    "tier": "private",
+    "domain": "personal (food)",
+    "question": "What is Shelly's favorite fruit?",
+    "answer": "apple",
+    "accepted_answers": [
+      "apple",
+      "apples"
+    ],
+    "source": "researcher (private fact)",
+    "counterfactual_value": "mango",
+    "d1": [
+      "Shelly usually keeps fresh fruit at home.",
+      "Her favorite fruit is the apple.",
+      "She buys groceries once a week."
+    ],
+    "target_index": 1,
+    "c5": {
+      "original": "once",
+      "replacement": "twice"
+    },
+    "d2": "Fruit is a good source of fiber and vitamins.",
+    "d3": "Many grocery stores sell fruit that is in season.",
+    "tricky_distractor": false,
+    "notes": "Guessable (very common answer): C0 may flag it as a lucky guess. Tier label is provisional until C0 is run."
+  }
+]

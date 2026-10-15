@@ -35,7 +35,7 @@
   {"id": "H30", "type": "hard_negative", "case_id": "O12", "text": "The men's singles draw at a Grand Slam tournament has 128 players."},
   {"id": "H31", "type": "hard_negative", "case_id": "O12", "text": "Arthur Ashe Stadium is the largest tennis stadium in the world by seating capacity."},
   {"id": "H32", "type": "hard_negative", "case_id": "O12", "text": "Grand Slam men's singles matches are played as best of five sets."},
-  {"id": "H33", "type": "hard_negative", "case_id": "O12", "text": "The US Open introduced a tiebreak in the final set only in recent years."},
+  {"id": "H33", "type": "hard_negative", "case_id": "O12", "text": "In 2022, the four Grand Slam tournaments adopted the same ten-point tiebreak at six games all in the final set."},
   {"id": "H34", "type": "hard_negative", "case_id": "O12", "text": "The other three Grand Slam tournaments are the Australian Open, the French Open and Wimbledon."},
   {"id": "H35", "type": "hard_negative", "case_id": "O12", "text": "Tennis rankings are updated weekly based on results from the previous fifty-two weeks."},
 
@@ -61,7 +61,7 @@
   {"id": "H53", "type": "hard_negative", "case_id": "P2", "text": "Nintendo consoles record play time for each game, which players can check in their profile."},
   {"id": "H54", "type": "hard_negative", "case_id": "P2", "text": "Speedrunners compete to finish Zelda games in the shortest possible time."},
 
-  {"id": "H55", "type": "hard_negative", "case_id": "P3", "text": "National Novel Writing Month challenges participants to write fifty thousand words in thirty days."},
+  {"id": "H55", "type": "hard_negative", "case_id": "P3", "text": "The National Novel Writing Month challenge asked participants to write fifty thousand words in thirty days."},
   {"id": "H56", "type": "hard_negative", "case_id": "P3", "text": "Epic fantasy novels often run well beyond one hundred and fifty thousand words."},
   {"id": "H57", "type": "hard_negative", "case_id": "P3", "text": "Writers often track word counts to measure daily progress on a long story."},
   {"id": "H58", "type": "hard_negative", "case_id": "P3", "text": "A short story is usually under seven thousand five hundred words long."},

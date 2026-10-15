@@ -30,10 +30,10 @@
 | F5 | familiar | rank 1 (0.434) | removed | rank 3 (0.350) | rank 1 (0.502) | rank 1 (0.449) |
 | F6 | familiar | rank 1 (0.479) | removed | rank 1 (0.518) | rank 1 (0.497) | rank 1 (0.479) |
 | O11 | obscure | rank 2 (0.328) | removed | rank 2 (0.265) | rank 2 (0.358) | rank 2 (0.339) |
-| O12 | obscure | rank 1 (0.558) | removed | rank 5 (0.176) | rank 1 (0.558) | rank 1 (0.594) |
+| O12 | obscure | rank 1 (0.559) | removed | rank 5 (0.181) | rank 1 (0.559) | rank 1 (0.596) |
 | O13 | obscure | rank 1 (0.605) | removed | rank 1 (0.242) | rank 1 (0.634) | rank 1 (0.617) |
-| P1 | private | rank 1 (0.526) | removed | rank 3 (0.201) | rank 1 (0.564) | rank 1 (0.526) |
-| P2 | private | rank 1 (0.684) | removed | rank 2 (0.265) | rank 1 (0.705) | rank 1 (0.684) |
+| P1 | private | rank 1 (0.524) | removed | rank 3 (0.200) | rank 1 (0.561) | rank 1 (0.524) |
+| P2 | private | rank 1 (0.682) | removed | rank 2 (0.266) | rank 1 (0.704) | rank 1 (0.682) |
 | P3 | private | rank 1 (0.579) | removed | rank 1 (0.577) | rank 1 (0.609) | rank 1 (0.609) |
 
 _pilot — pipeline test, not findings_

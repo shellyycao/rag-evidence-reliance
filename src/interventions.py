@@ -2,9 +2,11 @@
 
 C1r (repeats of C1) is a run-time repeat, not a separate input, so it is not generated here.
 """
+import argparse
 import json
 import random
 import re
+from collections import Counter
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -23,10 +25,15 @@ def replace_ci(text, old, new):
 
 
 def matched_form(case):
-    """The longest accepted answer form that occurs in the target sentence, as written there."""
+    """The form of the answer to replace in the target sentence, as written there.
+
+    Prefer the case's own `answer` string (so the counterfactual replaces exactly what the answer covers, e.g. "206"
+    and not "206 bones"); otherwise fall back to the longest accepted form found in the sentence.
+    """
     target = case["d1"][case["target_index"]]
     forms = sorted({case["answer"], *case["accepted_answers"]}, key=lambda f: (-len(f), f))
-    form = next(f for f in forms if f.lower() in target.lower())
+    form = case["answer"] if case["answer"].lower() in target.lower() else next(
+        f for f in forms if f.lower() in target.lower())
     return re.search(re.escape(form), target, flags=re.IGNORECASE).group(0)
 
 
@@ -167,7 +174,13 @@ def render_review(cases, all_marked, all_records):
 
 
 def main():
-    cases = json.loads(CASES_PATH.read_text())
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--cases", default=str(CASES_PATH), help="cases JSON (default: the pilot cases)")
+    ap.add_argument("--name", default="pilot", help="outputs are data/<name>_conditions.jsonl and ..._review.md")
+    args = ap.parse_args()
+    jsonl_path = ROOT / "data" / f"{args.name}_conditions.jsonl"
+    review_path = ROOT / "data" / f"{args.name}_conditions_review.md"
+    cases = json.loads(Path(args.cases).read_text())
     positions = assign_d1_positions(cases)
     all_records, all_marked = [], []
     for case in cases:
@@ -175,11 +188,13 @@ def main():
         check(case, records)
         all_records.append(records)
         all_marked.append(marked)
-    JSONL_PATH.write_text(
+    jsonl_path.write_text(
         "".join(json.dumps(r, ensure_ascii=False) + "\n" for recs in all_records for r in recs))
-    REVIEW_PATH.write_text(render_review(cases, all_marked, all_records) + "\n")
+    review_path.write_text(render_review(cases, all_marked, all_records) + "\n")
+    counts = Counter(positions.values())
     print(f"{len(cases)} cases x {len(CONDITIONS)} conditions = {sum(map(len, all_records))} lines")
-    print(f"wrote {JSONL_PATH.relative_to(ROOT)} and {REVIEW_PATH.relative_to(ROOT)}")
+    print(f"D1 position counts (seed {SEED}): " + ", ".join(f"position {p}: {counts[p]}" for p in sorted(counts)))
+    print(f"wrote {jsonl_path.relative_to(ROOT)} and {review_path.relative_to(ROOT)}")
 
 
 if __name__ == "__main__":
