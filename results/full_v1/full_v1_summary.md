@@ -2,7 +2,7 @@
 
 **PILOT — PIPELINE TEST, NOT FINDINGS**
 
-522 calls; 15 flagged for manual review (see `full_v1_review.csv`): 0 labeled, 14 'other' rows awaiting a review_label. 72 rows have abstain_field_mismatch (separate column, not reviewed). Outcome counts: {'correct': 272, 'counterfactual': 82, 'other': 14, 'abstained': 154}.
+522 calls; 15 flagged for manual review (see `full_v1_review.csv`): 14 labeled, 0 'other' rows awaiting a review_label. 72 rows have abstain_field_mismatch (separate column, not reviewed). Outcome counts: {'correct': 272, 'counterfactual': 82, 'premise_rejected': 2, 'abstained': 157, 'wrong_guess': 9}.
 
 Outcome per repeat (3 per cell). "Change vs C1" = repeats whose outcome differs from C1 at the same repeat index. D1 cited / unsupported / near-miss / conflict are counts out of 3 repeats; "unsupported" includes near-misses (a cited non-D1 doc that merely contains the value).
 
@@ -28,7 +28,7 @@ Outcome per repeat (3 per cell). "Change vs C1" = repeats whose outcome differs 
 | F6 | familiar | C3 | correct×3 | 0/3 | 0/3 | 0/3 | 0/3 | 95.0 | 0/3 |
 | F6 | familiar | C4 | correct×3 | 3/3 | 3/3 | 0/3 | 3/3 | 99.0 | 0/3 |
 | F6 | familiar | C5 | correct×3 | 3/3 | 0/3 | 0/3 | 0/3 | 100.0 | 0/3 |
-| O11 | obscure | C0 | other×2, abstained×1 | 0/3 | 0/3 | 0/3 | 0/3 | 40.0 |  |
+| O11 | obscure | C0 | premise_rejected×2, abstained×1 | 0/3 | 0/3 | 0/3 | 0/3 | 40.0 |  |
 | O11 | obscure | C1 | correct×3 | 3/3 | 0/3 | 0/3 | 0/3 | 100.0 |  |
 | O11 | obscure | C2 | abstained×3 | 0/3 | 0/3 | 0/3 | 0/3 | 10.0 | 3/3 |
 | O11 | obscure | C3 | abstained×3 | 2/3 | 0/3 | 0/3 | 0/3 | 73.3 | 3/3 |
@@ -40,9 +40,9 @@ Outcome per repeat (3 per cell). "Change vs C1" = repeats whose outcome differs 
 | O12 | obscure | C3 | abstained×3 | 0/3 | 0/3 | 0/3 | 0/3 | 30.0 | 3/3 |
 | O12 | obscure | C4 | counterfactual×3 | 3/3 | 0/3 | 0/3 | 0/3 | 100.0 | 3/3 |
 | O12 | obscure | C5 | correct×3 | 3/3 | 0/3 | 0/3 | 0/3 | 99.3 | 0/3 |
-| O13 | obscure | C0 | other×3 | 0/3 | 0/3 | 0/3 | 0/3 | 72.0 |  |
+| O13 | obscure | C0 | wrong_guess×3 | 0/3 | 0/3 | 0/3 | 0/3 | 72.0 |  |
 | O13 | obscure | C1 | correct×3 | 3/3 | 0/3 | 0/3 | 0/3 | 95.0 |  |
-| O13 | obscure | C2 | other×3 | 0/3 | 3/3 | 3/3 | 0/3 | 30.0 | 3/3 |
+| O13 | obscure | C2 | wrong_guess×3 | 0/3 | 3/3 | 3/3 | 0/3 | 30.0 | 3/3 |
 | O13 | obscure | C3 | abstained×3 | 0/3 | 0/3 | 0/3 | 0/3 | 40.0 | 3/3 |
 | O13 | obscure | C4 | counterfactual×3 | 3/3 | 0/3 | 0/3 | 3/3 | 40.0 | 3/3 |
 | O13 | obscure | C5 | correct×3 | 3/3 | 0/3 | 0/3 | 0/3 | 95.0 | 0/3 |
@@ -132,7 +132,7 @@ Outcome per repeat (3 per cell). "Change vs C1" = repeats whose outcome differs 
 | O17 | obscure | C5 | correct×3 | 3/3 | 0/3 | 0/3 | 0/3 | 100.0 | 0/3 |
 | O18 | obscure | C0 | abstained×3 | 0/3 | 0/3 | 0/3 | 0/3 | 95.0 |  |
 | O18 | obscure | C1 | correct×3 | 3/3 | 0/3 | 0/3 | 0/3 | 100.0 |  |
-| O18 | obscure | C2 | other×3 | 0/3 | 3/3 | 0/3 | 0/3 | 40.0 | 3/3 |
+| O18 | obscure | C2 | abstained×3 | 0/3 | 0/3 | 0/3 | 0/3 | 40.0 | 3/3 |
 | O18 | obscure | C3 | abstained×3 | 3/3 | 0/3 | 0/3 | 0/3 | 85.0 | 3/3 |
 | O18 | obscure | C4 | counterfactual×3 | 3/3 | 0/3 | 0/3 | 0/3 | 100.0 | 3/3 |
 | O18 | obscure | C5 | correct×3 | 3/3 | 0/3 | 0/3 | 0/3 | 100.0 | 0/3 |
@@ -169,7 +169,7 @@ Outcome per repeat (3 per cell). "Change vs C1" = repeats whose outcome differs 
 | P7 | private | C0 | abstained×3 | 0/3 | 0/3 | 0/3 | 0/3 | 0.0 |  |
 | P7 | private | C1 | correct×3 | 3/3 | 0/3 | 0/3 | 0/3 | 100.0 |  |
 | P7 | private | C2 | abstained×3 | 0/3 | 0/3 | 0/3 | 0/3 | 0.0 | 3/3 |
-| P7 | private | C3 | other×3 | 3/3 | 3/3 | 0/3 | 0/3 | 42.0 | 3/3 |
+| P7 | private | C3 | wrong_guess×3 | 3/3 | 3/3 | 0/3 | 0/3 | 42.0 | 3/3 |
 | P7 | private | C4 | counterfactual×3 | 3/3 | 0/3 | 0/3 | 0/3 | 100.0 | 3/3 |
 | P7 | private | C5 | correct×3 | 3/3 | 0/3 | 0/3 | 0/3 | 100.0 | 0/3 |
 | P8 | private | C0 | abstained×3 | 0/3 | 0/3 | 0/3 | 0/3 | 0.0 |  |

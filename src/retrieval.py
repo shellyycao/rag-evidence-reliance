@@ -24,7 +24,7 @@ from interventions import d1_variants
 ROOT = Path(__file__).resolve().parent.parent
 CASES_PATH = ROOT / "data" / "pilot_cases.json"
 FILLER_PATH = ROOT / "data" / "filler_docs.json"
-RESULTS_DIR = ROOT / "results"
+RESULTS_DIR = ROOT / "results" / "pilot"  # retrieval covers the pilot cases only
 LABEL = "pilot — pipeline test, not findings"
 
 K = 3
@@ -184,7 +184,7 @@ def main():
     cases, filler = load_cases(), load_filler()
     retriever = TfidfRetriever(build_corpus(cases, filler, cases[0], "C1"))  # fit once on the original corpus
     rows = evaluate(retriever, cases, filler, args.k)
-    RESULTS_DIR.mkdir(exist_ok=True)
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     csv_path = RESULTS_DIR / f"pilot_retrieval_{retriever.name}.csv"
     with open(csv_path, "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=list(rows[0]))

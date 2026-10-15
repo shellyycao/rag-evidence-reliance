@@ -106,7 +106,7 @@ def real_run(all_jobs, path, run_name):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--run-name", default="pilot", help="log file is results/<run-name>.jsonl")
+    ap.add_argument("--run-name", default="pilot", help="log file is results/<folder>/<run-name>.jsonl (pilot runs share results/pilot/)")
     ap.add_argument("--limit-case", nargs="+", metavar="CASE_ID",
                     help="only run these case IDs (for example --limit-case F3 P1)")
     ap.add_argument("--conditions-file", default=str(CONDITIONS_PATH),

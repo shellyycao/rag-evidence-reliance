@@ -7,8 +7,13 @@ from pathlib import Path
 RESULTS_DIR = Path(__file__).resolve().parent.parent / "results"
 
 
+def run_dir(run_name):
+    """Pilot and plumbing runs share results/pilot/; every other run gets its own results/<run_name>/ folder."""
+    return RESULTS_DIR / ("pilot" if run_name.startswith(("pilot", "plumbing")) else run_name)
+
+
 def log_path(run_name):
-    return RESULTS_DIR / f"{run_name}.jsonl"
+    return run_dir(run_name) / f"{run_name}.jsonl"
 
 
 def call_key(case_id, condition, repeat):

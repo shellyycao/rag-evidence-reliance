@@ -1,7 +1,7 @@
 """Score a results JSONL per call and per case. No API calls.
 
-Usage: python3 src/evaluate.py results/pilot_v2.jsonl
-Writes results/<stem>_scored.csv, <stem>_summary.md and <stem>_review.csv.
+Usage: python3 src/evaluate.py results/pilot/pilot_v2.jsonl
+Writes <stem>_scored.csv, <stem>_summary.md and <stem>_review.csv next to the results file.
 PILOT: pipeline test, not findings.
 """
 import argparse
@@ -268,7 +268,7 @@ def load_review_labels(path):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("results", help="results JSONL, e.g. results/full_v1.jsonl")
+    ap.add_argument("results", help="results JSONL, e.g. results/full_v1/full_v1.jsonl")
     ap.add_argument("--cases", default=str(CASES_PATH), help="cases file the run used (default: the pilot cases)")
     args = ap.parse_args()
     src = Path(args.results).resolve()

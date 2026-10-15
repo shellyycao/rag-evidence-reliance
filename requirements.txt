@@ -5,3 +5,4 @@ scipy==1.18.1
 numpy==2.5.4
 pandas==3.0.6
 boto3==1.43.114
+matplotlib==3.11.2
