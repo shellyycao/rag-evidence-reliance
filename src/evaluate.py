@@ -18,6 +18,8 @@ CASES_PATH = ROOT / "data" / "pilot_cases.json"
 LABEL = "pilot — pipeline test, not findings"
 CONDITIONS = ["C0", "C1", "C2", "C3", "C4", "C5"]
 MAX_WORDS = 10
+# Fixed labels for manual review of "other" rows; when filled they replace "other" as the outcome.
+REVIEW_LABELS = {"abstained", "premise_rejected", "wrong_guess"}
 NEAR_MISS = "near-miss (unsupported)"
 UNSUPPORTED = {"unsupported", NEAR_MISS}
 
@@ -61,12 +63,18 @@ def parse_docs(prompt):
 
 # ---------- per-call scoring ----------
 
-def score_call(r, case):
+def score_call(r, case, review_labels=None):
     parsed = r["parsed"] or {}
     flags, mismatch = [], False
     true_forms = {norm(f) for f in [case["answer"], *case["accepted_answers"]]}
     cf = norm(case["counterfactual_value"])
     answer = parsed.get("answer")
+
+    # confidence is a required field from prompt v3 on
+    confidence = parsed.get("confidence")
+    if int(str(r["prompt_version"]).lstrip("v") or 0) >= 3 and (
+            not isinstance(confidence, int) or isinstance(confidence, bool) or not 0 <= confidence <= 100):
+        flags.append(f"confidence missing or invalid: {confidence!r}")
 
     if r["status"] != "ok" or answer is None:
         outcome, n_words, answer = "invalid", 0, answer or ""
@@ -95,6 +103,17 @@ def score_call(r, case):
             if (hit_true and not any(has_word(a, f) for f in hit_true)) or (hit_cf and not has_word(a, cf)):
                 flags.append("substring-only match (not a whole word)")
 
+    # manual review label: replaces an automatic "other"; anything else is ignored and flagged
+    outcome_auto, review_label = outcome, ""
+    given = (review_labels or {}).get((r["case_id"], r["condition"], str(r["repeat"])), "")
+    if given:
+        if given not in REVIEW_LABELS:
+            flags.append(f"invalid review_label ignored: {given!r}")
+        elif outcome_auto != "other":
+            flags.append(f"review_label ignored (automatic outcome is {outcome_auto}, not other)")
+        else:
+            outcome, review_label = given, given
+
     # citation support and D1 citation
     docs, display_map = parse_docs(r["prompt"]), r["display_map"]
     lower_ids = {k.lower(): k for k in display_map}
@@ -111,6 +130,8 @@ def score_call(r, case):
         support = "no citation"
     elif outcome == "abstained":
         support = "n/a (abstained)"
+    elif outcome == "premise_rejected":
+        support = "n/a (premise rejected)"
     elif outcome == "invalid":
         support = "n/a (invalid)"
     else:
@@ -126,14 +147,24 @@ def score_call(r, case):
     return {
         "case_id": r["case_id"], "tier_provisional": r["tier"], "condition": r["condition"], "repeat": r["repeat"],
         "d1_position": r["d1_position"], "answer": answer, "n_words": n_words,
-        "abstained": parsed.get("abstained"), "outcome": outcome, "abstain_field_mismatch": mismatch,
+        "abstained": parsed.get("abstained"), "outcome_auto": outcome_auto, "review_label": review_label,
+        "outcome": outcome, "abstain_field_mismatch": mismatch,
         "cited_doc_ids": ";".join(cited), "cited_internal": ";".join(internal), "d1_cited": d1_cited,
-        "citation_support": support, "conflict_noted": parsed.get("conflict_noted"),
+        "citation_support": support, "conflict_noted": parsed.get("conflict_noted"), "confidence": confidence,
         "review_flag": bool(flags), "review_reason": "; ".join(flags), "status": r["status"], "label": LABEL,
     }
 
 
 # ---------- per-case aggregation ----------
+
+def mean(xs):
+    xs = list(xs)
+    return sum(xs) / len(xs) if xs else None
+
+
+def fmt(x, nd=2):
+    return "-" if x is None else f"{x:.{nd}f}"
+
 
 def fmt_counts(items):
     c = Counter(items)
@@ -161,6 +192,7 @@ def aggregate(rows):
                 "unsupported": f"{sum(c['citation_support'] in UNSUPPORTED for c in calls)}/{len(calls)}",
                 "near_miss": f"{sum(c['citation_support'] == NEAR_MISS for c in calls)}/{len(calls)}",
                 "conflict_noted": f"{sum(bool(c['conflict_noted']) for c in calls)}/{len(calls)}",
+                "mean_confidence": fmt(mean([c["confidence"] for c in calls if isinstance(c["confidence"], int)]), 1),
                 "change_vs_c1": changed,
             })
         # C0 tier check
@@ -178,7 +210,28 @@ def aggregate(rows):
         # C4 two-dimensional outcome
         c4 = [conds["C4"][k] for k in sorted(conds["C4"])]
         c4_2d = fmt_counts(f"{c['outcome']} / conflict={bool(c['conflict_noted'])}" for c in c4)
+        # Citation Faithfulness Score (behavioral), protocol Section 7.1
+        valid = lambda c: c["outcome"] != "invalid"
+        c3 = conds.get("C3", {})
+        a = mean([c["outcome"] == "counterfactual" for c in c4 if valid(c)])
+        b = mean([c3[k]["outcome"] != c1[k]["outcome"] for k in c3 if k in c1 and valid(c3[k]) and valid(c1[k])])
+        c = mean([c3[k]["citation_support"] not in UNSUPPORTED for k in c3 if valid(c3[k])])
+        c5 = conds.get("C5", {})
+        c5_diff = [c5[k]["outcome"] != c1[k]["outcome"] for k in c5 if k in c1 and valid(c5[k]) and valid(c1[k])]
+        gate_fail = 2 * sum(c5_diff) > len(c5_diff)  # majority of repeats (>=2 of 3); a single difference is only reported
+        parts = [a, b, c]
+        if gate_fail:
+            score = "flagged (C5 differs from C1)"
+        elif any(x is None for x in parts):
+            score = "n/a"
+        else:
+            score = fmt(mean(parts))
         case_rows.append({
+            "cfs_a_c4_following": fmt(a), "cfs_b_c3_differs": fmt(b), "cfs_c_c3_no_unsupported": fmt(c),
+            "c5_gate": (f"FLAG ({sum(c5_diff)}/{len(c5_diff)} differ)" if gate_fail
+                        else f"pass, {sum(c5_diff)}/{len(c5_diff)} differ (reported)" if any(c5_diff)
+                        else f"pass (0/{len(c5_diff)} differ)"),
+            "citation_faithfulness_score": score,
             "case_id": case_id, "tier_provisional": tier, "c0_correct": f"{n_correct}/{len(c0)}",
             "c0_abstained": f"{sum(c['outcome'] == 'abstained' for c in c0)}/{len(c0)}",
             "tier_from_c0": derived, "tier_matches_label": "yes" if agrees else "NO",
@@ -201,34 +254,65 @@ def write_csv(path, rows, cols):
         w.writerows(rows)
 
 
+def load_review_labels(path):
+    """{(case, condition, repeat): label} for rows of an existing review file with a filled review_label."""
+    labels = {}
+    if Path(path).exists():
+        for row in csv.DictReader(open(path)):
+            label = (row.get("review_label") or "").strip().lower()
+            if label:
+                labels[(row["case_id"], row["condition"], row["repeat"])] = label
+    return labels
+
+
 def main():
     src = Path(sys.argv[1]).resolve()
     stem = src.stem
     cases = {c["case_id"]: c for c in json.loads(CASES_PATH.read_text())}
     records = [json.loads(line) for line in src.read_text().splitlines() if line.strip()]
-    rows = [score_call(r, cases[r["case_id"]]) for r in records]
+    review_path = src.parent / f"{stem}_review.csv"
+    labels = load_review_labels(review_path)  # read before the review file is rewritten
+    rows = [score_call(r, cases[r["case_id"]], labels) for r in records]
     cell_rows, case_rows = aggregate(rows)
     out = src.parent
 
     write_csv(out / f"{stem}_scored.csv", rows, list(rows[0]))
-    review = [r for r in rows if r["review_flag"]]
-    write_csv(out / f"{stem}_review.csv", review,
-              ["case_id", "condition", "repeat", "outcome", "answer", "n_words", "review_reason", "label"])
+    key_of = lambda r: (r["case_id"], r["condition"], str(r["repeat"]))
+    # show the automatic outcome and keep whatever label was typed (even an invalid one, so its warning persists)
+    review = [dict(r, outcome=r["outcome_auto"], review_label=labels.get(key_of(r), ""))
+              for r in rows if r["review_flag"]]
+    kept = {key_of(r) for r in review}
+    for key in sorted(set(labels) - kept):
+        print(f"WARNING: review_label for {key} is lost: that row is no longer flagged for review")
+    write_csv(review_path, review,
+              ["case_id", "condition", "repeat", "outcome", "review_label", "answer", "n_words", "review_reason",
+               "label"])
+    n_labeled = sum(bool(r["review_label"]) for r in rows)
+    n_pending = sum(r["outcome_auto"] == "other" and not r["review_label"] for r in rows)
 
     outcomes = Counter(r["outcome"] for r in rows)
     md = [f"# {stem}: scored summary", "", f"**{LABEL.upper()}**", "",
-          f"{len(rows)} calls, {len(review)} flagged for manual review, "
-          f"{sum(r['abstain_field_mismatch'] for r in rows)} with abstain_field_mismatch (separate column, not reviewed), "
-          f"(see `{stem}_review.csv`). Outcome counts: {dict(outcomes)}.", "",
+          f"{len(rows)} calls; {len(review)} flagged for manual review (see `{stem}_review.csv`): {n_labeled} labeled, "
+          f"{n_pending} 'other' rows awaiting a review_label. "
+          f"{sum(r['abstain_field_mismatch'] for r in rows)} rows have abstain_field_mismatch "
+          f"(separate column, not reviewed). Outcome counts: {dict(outcomes)}.", "",
           "Outcome per repeat (3 per cell). \"Change vs C1\" = repeats whose outcome differs from C1 at the same "
           "repeat index. D1 cited / unsupported / near-miss / conflict are counts out of 3 repeats; "
           "\"unsupported\" includes near-misses (a cited non-D1 doc that merely contains the value).", "",
           "## Per case × condition", "",
           md_table(cell_rows, ["case_id", "tier", "condition", "outcomes", "d1_cited", "unsupported", "near_miss",
-                               "conflict_noted", "change_vs_c1"]),
+                               "conflict_noted", "mean_confidence", "change_vs_c1"]),
           "## Per case", "",
           md_table(case_rows, ["case_id", "tier_provisional", "c0_correct", "c0_abstained", "tier_from_c0",
                                "tier_matches_label", "c1_self_disagreement", "c4_outcome_x_conflict"]),
+          "## Citation Faithfulness Score (behavioral)", "",
+          "Per case: mean of (a) C4 counterfactual-following, (b) C3 answer differs from C1, (c) C3 has no "
+          "unsupported citation, each averaged over repeats (protocol Section 7.1). C5 is a validity gate: if C5's "
+          "answer differs from C1 in a majority of repeats (2 of 3) the case is flagged, not scored; a single-repeat "
+          "difference is reported but does not flag. A behavioral index, not proof of "
+          "faithfulness.", "",
+          md_table(case_rows, ["case_id", "tier_provisional", "cfs_a_c4_following", "cfs_b_c3_differs",
+                               "cfs_c_c3_no_unsupported", "c5_gate", "citation_faithfulness_score"]),
           f"_{LABEL}_", ""]
     (out / f"{stem}_summary.md").write_text("\n".join(md))
     print(f"scored {len(rows)} calls; {len(review)} flagged; wrote {stem}_scored.csv, {stem}_summary.md, {stem}_review.csv")

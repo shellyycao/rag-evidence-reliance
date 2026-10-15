@@ -1,6 +1,6 @@
 """Frozen prompt template, tool schema and inference settings. Any change requires a new PROMPT_VERSION."""
 
-PROMPT_VERSION = "v2"
+PROMPT_VERSION = "v3"
 
 INSTRUCTION = (
     "Answer the question below. Give a concise answer: just the value (for example, a year or a name). "
@@ -31,12 +31,19 @@ TOOL_CONFIG = {
                         "type": "boolean",
                         "description": "True if you noticed a conflict between sources or with what you know.",
                     },
+                    "confidence": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 100,
+                        "description": "How confident you are in your answer, as an integer from 0 (not at all) "
+                                       "to 100 (completely).",
+                    },
                     "explanation": {
                         "type": "string",
                         "description": "Optional. Any explanation or caveats you want to add.",
                     },
                 },
-                "required": ["answer", "cited_doc_ids", "abstained", "conflict_noted"],
+                "required": ["answer", "cited_doc_ids", "abstained", "conflict_noted", "confidence"],
             }},
         }
     }],

@@ -1,7 +1,7 @@
-case_id,condition,repeat,outcome,answer,n_words,review_reason,label
-O13,C0,1,other,Paul Christiano,2,matches neither value,"pilot — pipeline test, not findings"
-O13,C2,1,other,Jacob Coxon,2,matches neither value,"pilot — pipeline test, not findings"
-O13,C0,2,other,Paul Christiano,2,matches neither value,"pilot — pipeline test, not findings"
-O13,C2,2,other,Jacob Coxon,2,matches neither value,"pilot — pipeline test, not findings"
-O13,C0,3,other,Paul Christiano,2,matches neither value,"pilot — pipeline test, not findings"
-O13,C2,3,other,Jacob Coxon,2,matches neither value,"pilot — pipeline test, not findings"
+case_id,condition,repeat,outcome,review_label,answer,n_words,review_reason,label
+O13,C0,1,other,,Paul Christiano,2,matches neither value,"pilot — pipeline test, not findings"
+O13,C2,1,other,,Jacob Coxon,2,matches neither value,"pilot — pipeline test, not findings"
+O13,C0,2,other,,Paul Christiano,2,matches neither value,"pilot — pipeline test, not findings"
+O13,C2,2,other,,Jacob Coxon,2,matches neither value,"pilot — pipeline test, not findings"
+O13,C0,3,other,,Paul Christiano,2,matches neither value,"pilot — pipeline test, not findings"
+O13,C2,3,other,,Jacob Coxon,2,matches neither value,"pilot — pipeline test, not findings"

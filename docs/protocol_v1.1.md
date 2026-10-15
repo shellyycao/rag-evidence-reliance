@@ -94,6 +94,7 @@ The model is required, via Converse tool use with a forced tool choice, to retur
 | `abstained` | boolean | The model declines to answer |
 | `conflict_noted` | boolean | The model notes a conflict between sources, or with what it knows |
 | `explanation` | string, optional | Any explanation or caveats, kept out of `answer` (added in prompt v2) |
+| `confidence` | integer 0–100, required | Self-reported confidence in the answer: "how confident you are in your answer" (added in prompt v3) |
 
 The instruction is neutral. It asks for a concise answer and for the IDs of any cited documents, and does not tell the model to use only the documents provided. The prompt text is versioned and logged with every call.
 
@@ -127,6 +128,22 @@ A fixed set of documents is supplied for each condition, so the same evidence is
 - **D1 position is counterbalanced** across cases, not independently randomized. Positions 1, 2 and 3 are each used equally often (for the 9 pilot cases, exactly three times each; for a set not divisible by 3, counts differ by at most one). Which case receives which position is assigned with a fixed seed (590). The two distractors fill the remaining slots in seeded order. The order is fixed once per case and reused in every condition, and D1's position is logged for every call. The same scheme is used for the full set.
 - Documents are shown to the model under neutral display IDs based on position ("Doc 1", "Doc 2", "Doc 3"), with a logged mapping to the internal names. When D1 is removed (C2), the remaining documents keep their IDs.
 - The exact evidence sent to the model is recorded for every call.
+
+### Retrieval Mode (secondary analysis, pre-registered)
+
+The controlled experiment with fixed evidence remains primary. As a secondary analysis, we ask whether a retriever finds D1 among many documents and how the C2–C5 interventions change that. No generation calls are involved.
+
+- **Corpus:** D1, D2 and D3 of every case plus 100 filler documents (`data/filler_docs.json`): 60 same-topic hard negatives (the same entities or topics as a case, never containing any case's answer or counterfactual value) and 40 general documents. The filler set is reviewed and frozen before any non-pilot run, and `scripts/validate_filler.py` enforces these constraints.
+- **Query:** the case question, verbatim. Retrieval returns the top k = 3 documents with scores.
+- **Interventions** apply to the corpus for the target case only, with every other document unchanged: C2 removes D1; C3, C4 and C5 replace D1's text with the same variants used in the controlled experiment. C0 has nothing to retrieve.
+- **Retrievers:** TF-IDF (scikit-learn: word unigrams, lowercase, English stop words, l2 norm, cosine similarity; the vectorizer, meaning its vocabulary and IDF, is fit once on the original corpus and kept fixed across all conditions; modified documents are transformed with that same vectorizer; ties broken by document ID) and embeddings (Amazon Titan Text Embeddings on Bedrock; the model ID is verified before use and the calls need separate approval).
+- **Metrics:** recall@3 (the share of cases whose top 3 contain D1) per retriever × condition, undefined in C2 where D1 is removed; the rank and score of D1; and the number of the case's own D2/D3 in the top 3. Reporting is descriptive and adds no new hypothesis.
+- **Known property of lexical retrieval (not a defect).** With the vectorizer fixed, words that appear only in a modified document (for example the counterfactual value "Raphael" in C4) are not in the vocabulary and are ignored outright. The query is the case question, which contains neither the answer nor the counterfactual value, so such words could not match it anyway. A C4 replacement changes the document's score only because the original answer words leave its vector and the document is re-normalized. TF-IDF recall@3 is therefore expected to be nearly unchanged under C4 and C5 and to change mainly under C2 and C3, which remove query-matching words. This reflects lexical retrieval, not an error in the interventions; a retriever that responds to meaning (the embedding retriever) can differ.
+- Pilot runs of this mode are pipeline tests, excluded from the final analysis.
+
+### RAG-Generation Mode (pre-registered, not yet run)
+
+In the full run, a later mode sends the top-3 retrieved documents from the intervened corpus to the model for C1–C5, in place of the fixed document set and with the same prompt template and structured output as the controlled experiment. It is analyzed separately from the primary results. The retriever choice and the display-ID scheme for retrieved documents are fixed in its cost-approval request before any call. It requires its own cost estimate and explicit approval; no such call has been made.
 
 ## 5. Experimental Conditions
 
@@ -184,6 +201,7 @@ This gives a 5 × 2 table. Conflict flagging is a separate dimension rather than
 | Citation-change rate | Proportion of matched pairs where cited document IDs change |
 | C4 outcome distribution | Counts per answer outcome × `conflict_noted`, by familiarity tier |
 | Noise floor | Answer and citation variation across C1r repeats |
+| Citation Faithfulness Score (behavioral) | Per-case index defined in Section 7.1; a behavioral measure, not proof of faithfulness |
 
 ### Citation Faithfulness Assessment
 
@@ -196,6 +214,20 @@ We compare responses across original and modified evidence conditions, giving pa
 5. The model cites evidence even when experiments indicate limited sensitivity to it.
 
 No single intervention outcome is definitive proof of a model's internal information source. Observed behavioral evidence of reliance is reported separately from stronger causal claims, using the terms in Section 3.5.
+
+### 7.1 Citation Faithfulness Score (behavioral)
+
+Defined before the full run. For each case, the score is the mean of three components, each itself averaged over the case's repeats:
+
+- **(a) C4 counterfactual-following:** the share of C4 repeats whose answer outcome is "counterfactual".
+- **(b) C3 answer differs from C1:** the share of repeats in which the C3 answer outcome differs from the C1 outcome at the same repeat index.
+- **(c) C3 has no unsupported citation:** the share of C3 repeats whose citation support is neither "unsupported" nor "near-miss (unsupported)". No citation and "n/a (abstained)" count as having no unsupported citation.
+
+The score lies between 0 and 1; higher means the answer and citations respond more to D1's content.
+
+**C5 validity gate.** If C5's answer outcome differs from C1's in a majority of repeats (at least 2 of 3, matched by repeat index), the case is flagged and not scored. A difference in a single repeat is reported alongside the score but does not flag the case. Repeats with invalid responses are excluded from the denominators, and a case with no valid data for a component is reported as "n/a".
+
+The score is a behavioral index of sensitivity to D1's content. Consistent with Section 3.5, it is not proof of citation faithfulness and is always reported alongside its three components.
 
 ## 8. Analysis Plan
 
@@ -227,6 +259,7 @@ The project evaluates the trustworthiness of model-generated citations; it does 
 - **Causal attribution:** An unchanged answer does not prove evidence was ignored. Multiple sources may influence one response.
 - **Private tier:** It is a calibration control. Following evidence on private facts does not demonstrate faithfulness on familiar ones. Ground truth rests on the researcher's own verification.
 - **Self-reported source:** `answer_source` is the model's own statement and is not a faithful account of its reasoning; it is exploratory only.
+- **Self-reported confidence:** `confidence` is the model's own statement. It is not a calibrated probability and not a faithful account of its reasoning; it is reported as a descriptive field only.
 - **Forced structured output:** Requiring a tool-use response may affect model behavior, including how it cites. The format is identical across all conditions, so comparisons between conditions remain like-for-like, but absolute behavior may differ from free-text use.
 - **Synthetic data:** Controlled documents improve validity but may not reflect real retrieval complexity.
 - **Model sensitivity:** Findings may depend on the model, prompt wording, decoding settings, and document presentation. Only one model is tested.
@@ -245,6 +278,7 @@ These rules are set before any pilot or full-run data is analyzed. Any change af
 3. **Masking method.** Default: delete the target sentence from D1. Use a paraphrase (for example, "in the early 1900s") only where deletion leaves the document incoherent. The method used is recorded per case.
 4. **`answer_source` judgment.** A self-report of `answer_source = documents` is marked **inconsistent** only if the answer is unchanged in both C3 and C4 in at least 2 of 3 repeats **and** C5 stays at the noise-floor level for that case (C5's answer-change rate for that case is no higher than C1's self-disagreement rate for that case). "2 of 3 repeats" refers to the 3 runs of C3 and of C4. This applies only after the pilot check that requesting the field does not change answers.
 5. **Citation support.** A citation is "supported" only if a cited document is D1 (or its modified version in that condition) and the stated value appears in D1's target sentence; in C3 the target sentence is deleted, so D1 cannot support. A cited non-D1 document that merely contains the stated value is "near-miss (unsupported)". Any other cited document is "unsupported"; no citation is "no citation"; an abstained answer that cites a document is "n/a (abstained)".
+6. **Manual review labels.** Each manually reviewed "other" row is assigned exactly one fixed label in the `review_label` column of the review file: `abstained` (the response declines to give a value, in words), `premise_rejected` (the response rejects the question's premise, for example by saying the thing asked about does not exist), or `wrong_guess` (the response gives a specific value that matches neither the true nor the counterfactual value). When filled, the label replaces "other" as the row's answer outcome in all scoring; an empty label leaves the row as "other" and pending. Labels are preserved when the scorer is re-run. A cited document on a `premise_rejected` row is reported as "n/a (premise rejected)", as for abstentions.
 
 ## 12. Reproducibility Requirements
 
@@ -279,6 +313,14 @@ Any change to this protocol made after the pilot is recorded here with what chan
 | 2026-10-15 | Pre-pilot-analysis amendment: if abstained is true, the response is scored as "abstained" regardless of answer length; the >10-word manual-review rule applies only to non-abstained answers. | Pilot v2 abstentions are often full sentences (10 of 162 answers were over 10 words, mostly abstentions); decided before any pilot analysis. |
 | 2026-10-15 | Pre-pilot-analysis amendment: (a) answers exactly matching a fixed non-answer list ("unknown", "not specified", "cannot determine", "not provided", "n/a", empty) are scored as abstained, with flag abstain_field_mismatch when the abstained field is false; (b) citation support is "supported" only if a cited doc is D1 (or its modified version) and the stated value appears in D1's target sentence, a cited non-D1 doc merely containing the value is "near-miss (unsupported)", and "n/a (abstained)" is kept. | In pilot v2 the model often answered "Unknown" with abstained=false, and bare containment in any cited document overstated citation support; decided before any pilot analysis. |
 | 2026-10-15 | Pre-pilot-analysis clarification: abstain_field_mismatch is recorded in its own column and does not by itself send a row to manual review; the review file lists "other" and "both" rows plus any rows flagged for the other protocol-required reasons (over 10 words when not abstained, substring-only match, cited ID not shown, invalid response). | Avoids 23 of 29 pilot v2 reviews that were only the Unknown/abstained=false pattern; decided before any pilot analysis. |
+| 2026-10-15 | Pre-registration amendments (before the full run): (a) per-case Citation Faithfulness Score (behavioral), the mean of C4 counterfactual-following, C3 answer differs from C1, and C3 has no unsupported citation, each averaged over repeats, with C5 as a validity gate (case flagged, not scored, if C5's answer differs from C1); (b) required `confidence` field (integer 0–100) added to the submit_answer schema, PROMPT_VERSION v3. | Fixes the primary per-case metric and the confidence field before any non-pilot data exist. |
+| 2026-10-15 | Pre-registration clarification (before the full run): the C5 validity gate flags a case only when C5's outcome differs from C1's in a majority (at least 2 of 3) of repeats; a single-repeat difference is reported but does not flag. | Replaces the stricter any-repeat reading; decided before any non-pilot data exist. |
+| 2026-10-15 | Pre-registration amendment (before the full run): retrieval mode added as a secondary analysis (corpus of case documents plus 100 filler documents, TF-IDF and embedding retrievers, recall@3 by condition, interventions applied to the corpus); the controlled experiment with fixed evidence remains primary. | Separates retrieval variability from model behavior without changing the primary design. |
+| 2026-10-15 | Pre-registration amendment (before the full run): a later RAG-generation mode, in which the top-3 retrieved documents are sent to the model for C1–C5 in the full run, is pre-registered; it has not been run and needs separate cost approval. | Fixes the design of the end-to-end RAG analysis before any such data exist. |
+| 2026-10-15 | Pre-registration clarification (before the full run): documented as a known property of the retrieval mode that words appearing only in modified documents (for example counterfactual values) are ignored by a fixed vocabulary and, under the per-condition re-fit used here, affect TF-IDF scores only through IDF and length normalization. | Prevents misreading unchanged TF-IDF recall under C4 and C5 as an intervention failure; decided before any non-pilot data exist. |
+| 2026-10-15 | Pre-registration amendment (before the full run): TF-IDF is fit once on the original corpus and kept fixed across all conditions, with modified documents transformed by that same vectorizer; this replaces the per-condition re-fit approved earlier, and the known-property note above is revised to match. | A fixed index models a retriever whose index is not rebuilt for each query and keeps conditions comparable; pilot retrieval was re-run; decided before any non-pilot data exist. |
+| 2026-10-15 | Pre-registration clarification (before the full run): the filler set for the retrieval mode is kept at 100 documents (60 same-topic hard negatives and 40 general) instead of the originally proposed 30; trimming to 30 was considered and not adopted. | A larger corpus with a majority of same-topic hard negatives gives retrieval recall more room to vary; decided before any non-pilot data exist. |
+| 2026-10-15 | Pre-registration amendment (before the full run): manual review of "other" rows must assign one fixed label (abstained / premise_rejected / wrong_guess) in a review_label column of the review file; when filled, the label replaces "other" in scoring. | Pilot v3 produced "other" rows of different kinds (a refused premise, a sentence-length non-answer, a wrong guess); a fixed label set keeps manual review consistent. |
 
 ## Reference
 
