@@ -1,4 +1,4 @@
-# Cite or Recite? Evaluating Evidence Reliance in RAG
+# Evaluating Evidence Reliance in RAG
 
 An Explainable AI (XAI) research experiment, not a RAG chatbot. It asks whether the documents an LLM cites actually shape its answers.
 
