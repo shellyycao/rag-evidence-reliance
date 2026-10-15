@@ -85,7 +85,9 @@ def real_run(all_jobs, path, run_name):
             u = response["usage"]
             cost = estimate_cost(u["inputTokens"], u["outputTokens"], PRICE_IN_PER_M, PRICE_OUT_PER_M)
             spent += cost
-            if parsed is None:
+            if response["stopReason"] == "max_tokens":
+                status, error = "truncated", "stopReason max_tokens"
+            elif parsed is None:
                 status, error = "parse_error", "no toolUse block in response"
         except Exception as e:  # logged, never swallowed silently
             status, error = "error", f"{type(e).__name__}: {e}"

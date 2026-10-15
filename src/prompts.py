@@ -1,6 +1,6 @@
 """Frozen prompt template, tool schema and inference settings. Any change requires a new PROMPT_VERSION."""
 
-PROMPT_VERSION = "v1"
+PROMPT_VERSION = "v2"
 
 INSTRUCTION = (
     "Answer the question below. Give a concise answer: just the value (for example, a year or a name). "
@@ -17,7 +17,11 @@ TOOL_CONFIG = {
             "inputSchema": {"json": {
                 "type": "object",
                 "properties": {
-                    "answer": {"type": "string", "description": "Concise answer to the question."},
+                    "answer": {
+                        "type": "string",
+                        "description": "The bare answer value only (for example, a year, a name or a number), "
+                                       "with no explanation. Put any explanation in the explanation field.",
+                    },
                     "cited_doc_ids": {
                         "type": "array", "items": {"type": "string"},
                         "description": "IDs of cited documents, for example \"Doc 1\"; empty if none.",
@@ -26,6 +30,10 @@ TOOL_CONFIG = {
                     "conflict_noted": {
                         "type": "boolean",
                         "description": "True if you noticed a conflict between sources or with what you know.",
+                    },
+                    "explanation": {
+                        "type": "string",
+                        "description": "Optional. Any explanation or caveats you want to add.",
                     },
                 },
                 "required": ["answer", "cited_doc_ids", "abstained", "conflict_noted"],
@@ -36,7 +44,7 @@ TOOL_CONFIG = {
 }
 
 # Fixed for every call; extended thinking is not enabled.
-INFERENCE_CONFIG = {"temperature": 0, "maxTokens": 300}
+INFERENCE_CONFIG = {"temperature": 0, "maxTokens": 1024}
 
 
 def build_prompt(question, docs):

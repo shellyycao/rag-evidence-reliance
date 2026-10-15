@@ -78,7 +78,7 @@ Three terms are kept strictly separate in analysis and reporting:
 | API | Converse API |
 | Temperature | 0 |
 | Extended thinking | Off |
-| Max output tokens | 300 |
+| Max output tokens | 1024 (300 in pilot v1; see Deviations Log) |
 | Output format | Forced tool use (see below) |
 
 The plain ID `anthropic.claude-sonnet-4-6` fails with "on-demand throughput isn't supported". Access verified October 15, 2026. No fine-tuning is used. All settings are fixed across conditions.
@@ -89,10 +89,11 @@ The model is required, via Converse tool use with a forced tool choice, to retur
 
 | Field | Type | Meaning |
 |---|---|---|
-| `answer` | string | Concise answer: just the value (for example, a year or a name) |
+| `answer` | string | The bare answer value only (for example, a year or a name), with no explanation |
 | `cited_doc_ids` | list of strings | IDs of cited documents; empty if none |
 | `abstained` | boolean | The model declines to answer |
 | `conflict_noted` | boolean | The model notes a conflict between sources, or with what it knows |
+| `explanation` | string, optional | Any explanation or caveats, kept out of `answer` (added in prompt v2) |
 
 The instruction is neutral. It asks for a concise answer and for the IDs of any cited documents, and does not tell the model to use only the documents provided. The prompt text is versioned and logged with every call.
 
@@ -273,6 +274,7 @@ Any change to this protocol made after the pilot is recorded here with what chan
 | 2026-10-15 | Pre-pilot amendment (before any data): fictional tier replaced by private-fact tier. | Private facts are real but unknown to the model, with ground truth certain to the researcher. |
 | 2026-10-15 | Pre-pilot amendment (before any data): private cases checked at C0; 3/3 correct flagged as lucky-guess and reported separately. | Private facts can occasionally be guessed correctly; flagging avoids counting these as "unknown" knowledge. |
 | 2026-10-15 | Pre-pilot amendment: D1 position counterbalanced instead of independently randomized. | Independent randomization gave an uneven spread across the 9 pilot cases (1, 4 and 4); counterbalancing avoids confounding position with case. |
+| 2026-10-15 | Pilot v1 (162 calls) revealed (a) 61/160 answers over 10 words and (b) 2 truncated O13 C2 responses at maxTokens=300. Changes for pilot v2: PROMPT_VERSION v2 — answer schema description restricted to the bare value, new optional explanation field; maxTokens raised to 1024; responses with stopReason max_tokens logged as status 'truncated'. Note: amendments to Section 11 were decided before pilot v1 but committed after it ran. | Pilot v1 results; archived unchanged as results/pilot_v1.jsonl. |
 
 ## Reference
 
