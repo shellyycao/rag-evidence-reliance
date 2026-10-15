@@ -100,7 +100,7 @@ The instruction is neutral. It asks for a concise answer and for the IDs of any 
 
 ### Dataset
 
-A synthetic benchmark of factual questions, supporting documents, and distractor documents, spanning multiple domains (for example science, history, technology, environmental topics, and fictional entities).
+A synthetic benchmark of factual questions, supporting documents, and distractor documents, spanning multiple domains (for example science, history, technology, environmental topics, and private facts known only to the researcher).
 
 - Pilot: 6–10 factual cases.
 - Full experiment: approximately 30 factual cases.
@@ -110,7 +110,7 @@ A synthetic benchmark of factual questions, supporting documents, and distractor
 
 - **familiar**: the model answers correctly without evidence;
 - **obscure**: the model answers unreliably or incorrectly without evidence;
-- **fictional**: invented entities and facts. This tier is a calibration control: a model cannot hold pretrained knowledge of an invented fact, so it should follow evidence. It is not proof of faithfulness.
+- **private**: private facts. These are true facts about the researcher that are not publicly available; ground truth is verified by the researcher. This tier replaces invented facts, to guarantee real-but-unknown cases with certain ground truth. It is a calibration control: a model cannot hold pretrained knowledge of a private fact, so it should follow evidence. It is not proof of faithfulness.
 
 The exact C0-based assignment rule is fixed before the full run (see Section 11).
 
@@ -220,7 +220,7 @@ The project evaluates the trustworthiness of model-generated citations; it does 
 - **Unobservable pretrained knowledge:** No-RAG performance cannot establish which facts a model learned during pretraining. Familiarity tiers are behavioral proxies.
 - **Black-box interpretability:** The experiment evaluates observable behavior, not internal mechanisms.
 - **Causal attribution:** An unchanged answer does not prove evidence was ignored. Multiple sources may influence one response.
-- **Fictional tier:** It is a calibration control. Following evidence on fictional facts does not demonstrate faithfulness on familiar ones.
+- **Private tier:** It is a calibration control. Following evidence on private facts does not demonstrate faithfulness on familiar ones. Ground truth rests on the researcher's own verification.
 - **Self-reported source:** `answer_source` is the model's own statement and is not a faithful account of its reasoning; it is exploratory only.
 - **Forced structured output:** Requiring a tool-use response may affect model behavior, including how it cites. The format is identical across all conditions, so comparisons between conditions remain like-for-like, but absolute behavior may differ from free-text use.
 - **Synthetic data:** Controlled documents improve validity but may not reflect real retrieval complexity.
@@ -235,7 +235,7 @@ These rules are set before any pilot or full-run data is analyzed. Any change af
 1. **Tier assignment.** Use the three C0 runs per case. At temperature 0, repeats mainly capture residual non-determinism; "3 of 3 correct" is treated as a strictness threshold rather than a measure of confidence.
    - **Familiar:** correct in 3 of 3 runs.
    - **Obscure:** a real fact answered correctly in 0–2 of 3 runs, or abstained.
-   - **Fictional:** by construction (invented entities and facts).
+   - **Private:** by construction (private facts about the researcher). Private cases are also checked at C0. If C0 answers a private case correctly in 3 of 3 runs, the case is flagged as a **lucky-guess case** and reported separately, not as "unknown".
 2. **Answer matching.** Normalize the answer (lowercase, strip punctuation), then compare it with the expected value: the true value, or the counterfactual value in C4. An answer matching neither goes to manual review.
 3. **Masking method.** Default: delete the target sentence from D1. Use a paraphrase (for example, "in the early 1900s") only where deletion leaves the document incoherent. The method used is recorded per case.
 4. **`answer_source` judgment.** A self-report of `answer_source = documents` is marked **inconsistent** only if the answer is unchanged in both C3 and C4 in at least 2 of 3 repeats **and** C5 stays at the noise-floor level for that case (C5's answer-change rate for that case is no higher than C1's self-disagreement rate for that case). "2 of 3 repeats" refers to the 3 runs of C3 and of C4. This applies only after the pilot check that requesting the field does not change answers.
@@ -266,7 +266,7 @@ Any change to this protocol made after the pilot is recorded here with what chan
 
 | Date | Change | Reason |
 |---|---|---|
-| | | |
+| 2026-10-15 | Pre-pilot amendment (before any data): fictional tier replaced by private-fact tier. | Private facts are real but unknown to the model, with ground truth certain to the researcher. |
 
 ## Reference
 

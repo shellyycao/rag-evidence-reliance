@@ -1,0 +1,194 @@
+[
+  {
+    "case_id": "F3",
+    "tier": "familiar",
+    "domain": "wildlife",
+    "question": "What is the largest animal known to have ever lived?",
+    "answer": "blue whale",
+    "accepted_answers": ["blue whale"],
+    "source": "https://en.wikipedia.org/wiki/Blue_whale",
+    "counterfactual_value": "fin whale",
+    "d1": [
+      "Whales are marine mammals found in every ocean.",
+      "The blue whale is the largest animal known to have ever lived.",
+      "Most baleen whales feed on krill."
+    ],
+    "target_index": 1,
+    "c5": {"original": "krill", "replacement": "small fish"},
+    "d2": "Baleen whales filter food from seawater using plates made of keratin.",
+    "d3": "Many whale species migrate thousands of kilometers each year.",
+    "tricky_distractor": false,
+    "notes": "Tier label is provisional until C0 is run."
+  },
+  {
+    "case_id": "F5",
+    "tier": "familiar",
+    "domain": "art",
+    "question": "Who painted the Mona Lisa?",
+    "answer": "Leonardo da Vinci",
+    "accepted_answers": ["leonardo da vinci", "da vinci", "leonardo"],
+    "source": "https://en.wikipedia.org/wiki/Mona_Lisa",
+    "counterfactual_value": "Raphael",
+    "d1": [
+      "The Mona Lisa is a portrait from the early sixteenth century.",
+      "It was painted by Leonardo da Vinci.",
+      "Today it hangs in the Louvre in Paris."
+    ],
+    "target_index": 1,
+    "c5": {"original": "Louvre", "replacement": "Musée d'Orsay"},
+    "d2": "The Renaissance was a period of renewed interest in art and science in Europe.",
+    "d3": "Oil paint became widely used by European painters in the fifteenth century.",
+    "tricky_distractor": false,
+    "notes": "Tier label is provisional until C0 is run."
+  },
+  {
+    "case_id": "F6",
+    "tier": "familiar",
+    "domain": "history",
+    "question": "In what year did the Berlin Wall fall?",
+    "answer": "1989",
+    "accepted_answers": ["1989"],
+    "source": "https://en.wikipedia.org/wiki/Berlin_Wall",
+    "counterfactual_value": "1991",
+    "d1": [
+      "The Berlin Wall divided East and West Berlin during the Cold War.",
+      "It fell in 1989.",
+      "The wall stood about 3.6 meters tall."
+    ],
+    "target_index": 1,
+    "c5": {"original": "3.6", "replacement": "4.2"},
+    "d2": "Germany was reunified in 1990.",
+    "d3": "Berlin is the capital of Germany.",
+    "tricky_distractor": true,
+    "notes": "D2 contains a near-miss year (1990). Tier label is provisional until C0 is run."
+  },
+  {
+    "case_id": "O11",
+    "tier": "obscure",
+    "domain": "tech",
+    "question": "On what date was Claude Sonnet 5.5 released?",
+    "answer": "September 28, 2026",
+    "accepted_answers": ["september 28, 2026", "sept 28, 2026", "sep 28, 2026", "2026-09-28", "28 september 2026"],
+    "source": "https://www.anthropic.com/claude-sonnet-5-5",
+    "counterfactual_value": "October 6, 2026",
+    "d1": [
+      "Claude Sonnet 5.5 is a large language model developed by Anthropic.",
+      "It was released on September 28, 2026.",
+      "It is designed mainly for coding and knowledge work."
+    ],
+    "target_index": 1,
+    "c5": {"original": "coding", "replacement": "translation"},
+    "d2": "Claude Sonnet 5 was released on June 30, 2026.",
+    "d3": "Language models are trained on large collections of text.",
+    "tricky_distractor": true,
+    "notes": "Post-training-cutoff fact. D2 contains a near-miss date. Tier label is provisional until C0 is run."
+  },
+  {
+    "case_id": "O12",
+    "tier": "obscure",
+    "domain": "sports",
+    "question": "Who won the 2026 US Open men's singles title?",
+    "answer": "Alexander Zverev",
+    "accepted_answers": ["alexander zverev", "zverev"],
+    "source": "https://www.drishtiias.com/state-pcs-current-affairs/alexander-zverev-wins-2026-us-open-title",
+    "counterfactual_value": "Ben Shelton",
+    "d1": [
+      "The 2026 US Open tennis tournament was held in New York.",
+      "Alexander Zverev won the men's singles title.",
+      "The final was played in Arthur Ashe Stadium."
+    ],
+    "target_index": 1,
+    "c5": {"original": "Arthur Ashe", "replacement": "Louis Armstrong"},
+    "d2": "Ben Shelton reached the 2026 US Open men's singles final.",
+    "d3": "The US Open is one of tennis's four Grand Slam tournaments.",
+    "tricky_distractor": true,
+    "notes": "Current event. D2 names a plausible wrong answer (the finalist). Tier label is provisional until C0 is run."
+  },
+  {
+    "case_id": "O13",
+    "tier": "obscure",
+    "domain": "AI safety",
+    "question": "Which Anthropic safety researcher wrote on X that there is a greater than 10% chance AI could kill all humans within the next decade?",
+    "answer": "Evan Hubinger",
+    "accepted_answers": ["evan hubinger", "hubinger"],
+    "source": "https://www.bbc.com/news/articles/ckgwy1k42w4o ; https://x.com/EvanHub/status/2097497037956891126",
+    "counterfactual_value": "Daniel Mercer",
+    "d1": [
+      "In 2026, a senior AI safety researcher posted a warning about AI risk on X.",
+      "Evan Hubinger said there was a greater than 10% chance AI could kill all humans within the next decade.",
+      "His post was a response to another researcher who had recently left Anthropic."
+    ],
+    "target_index": 1,
+    "c5": {"original": "recently", "replacement": "previously"},
+    "d2": "Jacob Coxon, an AI researcher who previously worked at OpenAI, recently quit Anthropic.",
+    "d3": "The debate about AI has shifted from whether it poses a risk to how large that risk is.",
+    "tricky_distractor": true,
+    "notes": "C4 uses an invented name to avoid misattributing a quote to a real person. Sensitive topic (AI risk, same company as the model): flag in limitations. Tier label is provisional until C0 is run."
+  },
+  {
+    "case_id": "P1",
+    "tier": "private",
+    "domain": "personal (pets)",
+    "question": "What breed is Shelly's older cat?",
+    "answer": "Bengal",
+    "accepted_answers": ["bengal"],
+    "source": "researcher (private fact)",
+    "counterfactual_value": "Maine Coon",
+    "d1": [
+      "Shelly has two male cats.",
+      "Her older cat is a Bengal.",
+      "Both cats are around four years old."
+    ],
+    "target_index": 1,
+    "c5": {"original": "four", "replacement": "five"},
+    "d2": "Shelly's younger cat is a Siberian.",
+    "d3": "Cats are among the most popular pets in the world.",
+    "tricky_distractor": true,
+    "notes": "D2 names the other cat's breed (near-miss answer). Tier label is provisional until C0 is run."
+  },
+  {
+    "case_id": "P2",
+    "tier": "private",
+    "domain": "personal (gaming)",
+    "question": "How many hours has Shelly spent playing The Legend of Zelda games in total?",
+    "answer": "400 hours",
+    "accepted_answers": ["400", "400 hours"],
+    "source": "researcher (private fact)",
+    "counterfactual_value": "650 hours",
+    "d1": [
+      "The Legend of Zelda is Shelly's favorite video game series of all time.",
+      "She has spent about 400 hours playing Zelda games in total.",
+      "She played Tears of the Kingdom before Breath of the Wild."
+    ],
+    "target_index": 1,
+    "c5": {
+      "original": "Tears of the Kingdom before Breath of the Wild",
+      "replacement": "Breath of the Wild before Tears of the Kingdom"
+    },
+    "d2": "The Legend of Zelda is a video game series created by Nintendo.",
+    "d3": "Tears of the Kingdom was released in 2023 as a sequel to Breath of the Wild.",
+    "tricky_distractor": false,
+    "notes": "Tier label is provisional until C0 is run."
+  },
+  {
+    "case_id": "P3",
+    "tier": "private",
+    "domain": "personal (writing)",
+    "question": "How many words was the first long story Shelly wrote?",
+    "answer": "200,000 words",
+    "accepted_answers": ["200,000", "200000", "200,000 words"],
+    "source": "researcher (private fact)",
+    "counterfactual_value": "120,000 words",
+    "d1": [
+      "Shelly spent a year writing her first long creative story.",
+      "It reached about 200,000 words.",
+      "She wrote most of it at Starbucks."
+    ],
+    "target_index": 1,
+    "c5": {"original": "Starbucks", "replacement": "the library"},
+    "d2": "A typical published novel is between 70,000 and 100,000 words long.",
+    "d3": "Many writers draft long stories over several months or years.",
+    "tricky_distractor": true,
+    "notes": "D2 contains near-miss word counts. Tier label is provisional until C0 is run."
+  }
+]
