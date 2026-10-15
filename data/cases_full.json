@@ -507,7 +507,7 @@
     "d2": "Neutrinos are tiny particles that rarely interact with matter.",
     "d3": "The Nobel Prize in Physics is awarded by the Royal Swedish Academy of Sciences.",
     "tricky_distractor": false,
-    "notes": "Counterfactual is an invented name. Spec asks to check whether the prize was shared. Tier label is provisional until C0 is run."
+    "notes": "Counterfactual is an invented name. Researcher verified that there is a sole laureate. Tier label is provisional until C0 is run."
   },
   {
     "case_id": "O17",

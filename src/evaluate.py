@@ -4,6 +4,7 @@ Usage: python3 src/evaluate.py results/pilot_v2.jsonl
 Writes results/<stem>_scored.csv, <stem>_summary.md and <stem>_review.csv.
 PILOT: pipeline test, not findings.
 """
+import argparse
 import csv
 import json
 import re
@@ -266,9 +267,13 @@ def load_review_labels(path):
 
 
 def main():
-    src = Path(sys.argv[1]).resolve()
+    ap = argparse.ArgumentParser()
+    ap.add_argument("results", help="results JSONL, e.g. results/full_v1.jsonl")
+    ap.add_argument("--cases", default=str(CASES_PATH), help="cases file the run used (default: the pilot cases)")
+    args = ap.parse_args()
+    src = Path(args.results).resolve()
     stem = src.stem
-    cases = {c["case_id"]: c for c in json.loads(CASES_PATH.read_text())}
+    cases = {c["case_id"]: c for c in json.loads(Path(args.cases).read_text())}
     records = [json.loads(line) for line in src.read_text().splitlines() if line.strip()]
     review_path = src.parent / f"{stem}_review.csv"
     labels = load_review_labels(review_path)  # read before the review file is rewritten
