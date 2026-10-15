@@ -235,7 +235,7 @@ These rules are set before any pilot or full-run data is analyzed. Any change af
 1. **Tier assignment.** Use the three C0 runs per case. At temperature 0, repeats mainly capture residual non-determinism; "3 of 3 correct" is treated as a strictness threshold rather than a measure of confidence.
    - **Familiar:** correct in 3 of 3 runs.
    - **Obscure:** a real fact answered correctly in 0–2 of 3 runs, or abstained.
-   - **Private:** by construction (private facts about the researcher). Private cases are also checked at C0. If C0 answers a private case correctly in 3 of 3 runs, the case is flagged as a **lucky-guess case** and reported separately, not as "unknown".
+   - **Private:** by construction (private facts about the researcher). Private cases are also checked at C0. If C0 answers a private case correctly in 3 of 3 runs, the case is flagged as a **lucky-guess case** and reported separately, not as "unknown". Lucky-guess cases are not pooled with the familiar tier.
 2. **Answer matching.** Normalize the answer (lowercase, strip punctuation), then compare it with the expected value: the true value, or the counterfactual value in C4. An answer matching neither goes to manual review.
 3. **Masking method.** Default: delete the target sentence from D1. Use a paraphrase (for example, "in the early 1900s") only where deletion leaves the document incoherent. The method used is recorded per case.
 4. **`answer_source` judgment.** A self-report of `answer_source = documents` is marked **inconsistent** only if the answer is unchanged in both C3 and C4 in at least 2 of 3 repeats **and** C5 stays at the noise-floor level for that case (C5's answer-change rate for that case is no higher than C1's self-disagreement rate for that case). "2 of 3 repeats" refers to the 3 runs of C3 and of C4. This applies only after the pilot check that requesting the field does not change answers.
@@ -267,6 +267,7 @@ Any change to this protocol made after the pilot is recorded here with what chan
 | Date | Change | Reason |
 |---|---|---|
 | 2026-10-15 | Pre-pilot amendment (before any data): fictional tier replaced by private-fact tier. | Private facts are real but unknown to the model, with ground truth certain to the researcher. |
+| 2026-10-15 | Pre-pilot amendment (before any data): private cases checked at C0; 3/3 correct flagged as lucky-guess and reported separately. | Private facts can occasionally be guessed correctly; flagging avoids counting these as "unknown" knowledge. |
 
 ## Reference
 
