@@ -108,6 +108,8 @@ A synthetic benchmark of factual questions, supporting documents, and distractor
 
 Pilot data are used only to test the pipeline and are excluded from the final analysis; any pilot cases reused in the full set are re-run under the full-set position assignment.
 
+The `plumbing_check` run (case F3, all six conditions, one repeat, run on 2026-10-15) tested logging and resume behavior only and is excluded from all analysis.
+
 **Familiarity tiers.** Each case is assigned a tier from observed C0 behavior:
 
 - **familiar**: the model answers correctly without evidence;
@@ -160,13 +162,12 @@ All conditions use the same underlying question, prompt, document format, and in
 
 The replacement condition is a counterfactual intervention testing evidence sensitivity, not an assertion that the historical fact has changed.
 
-**C4 outcome taxonomy.** Each C4 response is assigned exactly one outcome:
+**C4 scoring is two-dimensional.** Each C4 response is scored on two dimensions:
 
-1. kept original (answers 1911)
-2. followed counterfactual (answers 1913)
-3. abstained
-4. flagged conflict
-5. other
+- **Answer outcome** (exactly one): original (contains the true value, for example 1911), counterfactual (contains the replacement value, for example 1913), both (contains both), abstained, or other.
+- **`conflict_noted`**: true or false, as reported by the model.
+
+This gives a 5 × 2 table. Conflict flagging is a separate dimension rather than an answer outcome, because a model can follow the counterfactual and still flag a conflict, or keep its original answer and flag one. The outcome is assigned from the answer text using the matching rules in Section 11; the `abstained` field marks the abstained outcome.
 
 ## 7. Measurements and Evaluation
 
@@ -176,11 +177,11 @@ The replacement condition is a counterfactual intervention testing evidence sens
 | Citation correctness | Proportion of cited claims supported by their referenced documents |
 | Unsupported-citation rate | Proportion of responses citing a document that does not support the answer given |
 | Answer-change rate | Proportion of matched pairs in which the substantive answer changes |
-| Counterfactual following rate | Proportion of eligible cases where the answer changes to match the replacement fact (C4 outcome 2) |
+| Counterfactual following rate | Proportion of eligible cases where the answer changes to match the replacement fact (C4 answer outcome "counterfactual") |
 | Evidence-removal sensitivity | Proportion of cases where removing relevant evidence changes the answer |
 | Negative-control sensitivity | Proportion of cases where the C5 change alters the answer |
 | Citation-change rate | Proportion of matched pairs where cited document IDs change |
-| C4 outcome distribution | Counts per taxonomy category, by familiarity tier |
+| C4 outcome distribution | Counts per answer outcome × `conflict_noted`, by familiarity tier |
 | Noise floor | Answer and citation variation across C1r repeats |
 
 ### Citation Faithfulness Assessment
@@ -239,7 +240,7 @@ These rules are set before any pilot or full-run data is analyzed. Any change af
    - **Familiar:** correct in 3 of 3 runs.
    - **Obscure:** a real fact answered correctly in 0–2 of 3 runs, or abstained.
    - **Private:** by construction (private facts about the researcher). Private cases are also checked at C0. If C0 answers a private case correctly in 3 of 3 runs, the case is flagged as a **lucky-guess case** and reported separately, not as "unknown". Lucky-guess cases are not pooled with the familiar tier.
-2. **Answer matching.** Normalize the answer (lowercase, strip punctuation), then compare it with the expected value: the true value, or the counterfactual value in C4. An answer matching neither goes to manual review.
+2. **Answer matching.** Normalize the answer and the reference values (lowercase, strip punctuation). After normalization, an answer is **correct** if it contains an accepted form of the true value; in C4 it is **counterfactual-following** if it contains the counterfactual value. Answers containing both values, or longer than 10 words, are flagged for manual review. An answer matching neither value is outcome "other" and is also reviewed.
 3. **Masking method.** Default: delete the target sentence from D1. Use a paraphrase (for example, "in the early 1900s") only where deletion leaves the document incoherent. The method used is recorded per case.
 4. **`answer_source` judgment.** A self-report of `answer_source = documents` is marked **inconsistent** only if the answer is unchanged in both C3 and C4 in at least 2 of 3 repeats **and** C5 stays at the noise-floor level for that case (C5's answer-change rate for that case is no higher than C1's self-disagreement rate for that case). "2 of 3 repeats" refers to the 3 runs of C3 and of C4. This applies only after the pilot check that requesting the field does not change answers.
 
