@@ -778,5 +778,32 @@
     "d3": "Many grocery stores sell fruit that is in season.",
     "tricky_distractor": false,
     "notes": "Guessable (very common answer): C0 may flag it as a lucky guess. Tier label is provisional until C0 is run."
+  },
+  {
+    "case_id": "P10",
+    "tier": "private",
+    "domain": "personal (sports)",
+    "question": "What sport does Shelly play?",
+    "answer": "badminton",
+    "accepted_answers": [
+      "badminton"
+    ],
+    "source": "researcher (private fact)",
+    "counterfactual_value": "volleyball",
+    "d1": [
+      "Shelly likes to stay active outside of class.",
+      "The sport she plays is badminton.",
+      "She usually plays with friends on Sunday afternoons."
+    ],
+    "target_index": 1,
+    "c5": {
+      "original": "Sunday",
+      "replacement": "Saturday"
+    },
+    "d2": "Racket sports improve reaction time and coordination.",
+    "d3": "Many university gyms offer courts that students can reserve.",
+    "tricky_distractor": true,
+    "d1_position_pinned": 3,
+    "notes": "D2 is on-topic (racket sports) without naming the answer. Added after full_v1 to complete the private tier at 10 cases; D1 position is pinned to 3 so the other 29 cases keep their positions and the set stays at 10/10/10. Tier label is provisional until C0 is run."
   }
 ]

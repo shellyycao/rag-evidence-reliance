@@ -46,10 +46,17 @@ def assign_d1_positions(cases):
 
     Positions cycle 1,2,3 to length N (each appears N/3 times; counts differ by at most 1 when
     N is not divisible by 3), then are shuffled with the fixed seed and assigned in file order.
+    A case with a "d1_position_pinned" field keeps that position and is left out of the shuffle, so
+    adding a pinned case never moves the positions of the others.
     """
-    positions = [i % 3 + 1 for i in range(len(cases))]
+    pinned = {c["case_id"]: c["d1_position_pinned"] for c in cases if "d1_position_pinned" in c}
+    assert all(p in (1, 2, 3) for p in pinned.values()), f"pinned positions must be 1, 2 or 3: {pinned}"
+    free = [c for c in cases if c["case_id"] not in pinned]
+    positions = [i % 3 + 1 for i in range(len(free))]
     random.Random(f"{SEED}:d1_position").shuffle(positions)
-    return {c["case_id"]: p for c, p in zip(cases, positions)}
+    assigned = {c["case_id"]: p for c, p in zip(free, positions)}
+    assigned.update(pinned)
+    return assigned
 
 
 def doc_order(case, d1_position):
@@ -177,11 +184,18 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--cases", default=str(CASES_PATH), help="cases JSON (default: the pilot cases)")
     ap.add_argument("--name", default="pilot", help="outputs are data/<name>_conditions.jsonl and ..._review.md")
+    ap.add_argument("--only", nargs="+", metavar="CASE_ID",
+                    help="generate only these cases; positions are still assigned over the whole cases file")
     args = ap.parse_args()
     jsonl_path = ROOT / "data" / f"{args.name}_conditions.jsonl"
     review_path = ROOT / "data" / f"{args.name}_conditions_review.md"
-    cases = json.loads(Path(args.cases).read_text())
-    positions = assign_d1_positions(cases)
+    all_cases = json.loads(Path(args.cases).read_text())
+    positions = assign_d1_positions(all_cases)  # always over the whole file, so --only never changes a position
+    cases = all_cases
+    if args.only:
+        unknown = set(args.only) - {c["case_id"] for c in all_cases}
+        assert not unknown, f"unknown case ID(s): {sorted(unknown)}"
+        cases = [c for c in all_cases if c["case_id"] in args.only]
     all_records, all_marked = [], []
     for case in cases:
         records, marked = build_case(case, positions[case["case_id"]])
@@ -193,7 +207,10 @@ def main():
     review_path.write_text(render_review(cases, all_marked, all_records) + "\n")
     counts = Counter(positions.values())
     print(f"{len(cases)} cases x {len(CONDITIONS)} conditions = {sum(map(len, all_records))} lines")
-    print(f"D1 position counts (seed {SEED}): " + ", ".join(f"position {p}: {counts[p]}" for p in sorted(counts)))
+    print(f"D1 position counts over the whole cases file ({len(all_cases)} cases, seed {SEED}): "
+          + ", ".join(f"position {p}: {counts[p]}" for p in sorted(counts)))
+    if args.only:
+        print("generated cases and their D1 positions: " + ", ".join(f"{c['case_id']} = {positions[c['case_id']]}" for c in cases))
     print(f"wrote {jsonl_path.relative_to(ROOT)} and {review_path.relative_to(ROOT)}")
 
 
