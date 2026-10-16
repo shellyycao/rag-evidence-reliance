@@ -246,131 +246,135 @@ def text_on(hex_color):
     return "#ffffff" if (1.05) / (lum + 0.05) > (lum + 0.05) / (luminance("#0b0b0b") + 0.05) else INK
 
 
-def fig_heatmap(calls, order, metrics, path):
-    group = {"correct": 0, "counterfactual": 1, "abstained": 2, "premise_rejected": 2}
-    colors = [BLUE, ORANGE, AQUA, NEUTRAL]
-    letter = {"correct": "C", "counterfactual": "F", "abstained": "A", "premise_rejected": "P", "wrong_guess": "W",
-              "other": "O", "both": "B", "invalid": "X"}
-    cases = [c for t in TIERS for c in order if metrics[c]["tier"] == t]
-    fig, ax = plt.subplots(figsize=(7.4, 0.3 * len(cases) + 2.4), facecolor=SURFACE)
-    ax.set_facecolor(SURFACE)
-    for i, case in enumerate(cases):
-        for j, cond in enumerate(CONDS):
-            outs = Counter(r["outcome"] for r in calls[(case, cond)].values())
-            top, k = outs.most_common(1)[0]
-            n = sum(outs.values())
-            mixed = k * 2 <= n
-            face = NEUTRAL if mixed else colors[group.get(top, 3)]
-            ax.add_patch(plt.Rectangle((j, i), 1, 1, facecolor=face, edgecolor=SURFACE, linewidth=2.5))
-            label = "?" if mixed else letter.get(top, "?")
-            if k < n:
-                label += f" {k}/{n}"
-            ax.text(j + 0.5, i + 0.5, label, ha="center", va="center", color=text_on(face),
-                    fontsize=9 if k == n else 7.5, fontweight="bold" if k == n else "normal")
-    ax.set_xlim(0, len(CONDS)); ax.set_ylim(len(cases), 0)
-    ax.set_xticks([j + 0.5 for j in range(len(CONDS))]); ax.set_xticklabels(CONDS, color=INK2)
-    ax.xaxis.tick_top()
-    ax.set_yticks([i + 0.5 for i in range(len(cases))]); ax.set_yticklabels(cases, color=INK2, fontsize=8.5)
-    ax.tick_params(length=0)
-    for s in ax.spines.values():
-        s.set_visible(False)
-    start = 0
-    for t in TIERS:  # tier names on the right, separators between tier blocks
-        n_t = sum(metrics[c]["tier"] == t for c in cases)
-        if n_t:
-            ax.text(len(CONDS) + 0.15, start + n_t / 2, f"{t}\n(n={n_t})", va="center", fontsize=8.5, color=INK2)
-            if start:
-                ax.plot([0, len(CONDS)], [start, start], color=INK2, linewidth=1.2)
-            start += n_t
-    ax.set_title("Answer outcome by case and condition (majority of 3 repeats; fraction shown if not unanimous)",
-                 loc="left", color=INK, fontsize=10, pad=26)
-    handles = [Patch(facecolor=BLUE, label="C  correct (true value)"), Patch(facecolor=ORANGE, label="F  followed the counterfactual value"),
-               Patch(facecolor=AQUA, label="A / P  declined: abstained / premise rejected"), Patch(facecolor=NEUTRAL, label="W  wrong guess (neither value)")]
-    fig.legend(handles=handles, loc="lower center", ncol=2, frameon=False, fontsize=8.5, labelcolor=INK2)
-    fig.subplots_adjust(left=0.07, right=0.84, top=0.9, bottom=0.1 if len(cases) > 20 else 0.2)
+TIER_COLOR = {"familiar": BLUE, "obscure": ORANGE, "private": AQUA, "lucky-guess": NEUTRAL}
+COND_NAMES = {"C0": "No\ndocs", "C1": "Original", "C2": "D1\nremoved", "C3": "Fact\ndeleted", "C4": "Fake\nfact", "C5": "Control\nedit"}
+FS = 13  # base font size for all figures
+
+
+def bar_style(ax):
+    style(ax)
+    ax.yaxis.grid(True, color=GRID, linewidth=0.8)
+    ax.tick_params(labelsize=FS, labelcolor=INK2)
+
+
+def tier_label(metrics, t, gated=False):
+    return f"{t.capitalize()}\n({sum(m['tier'] == t and not (gated and m['gated']) for m in metrics.values())} cases)"
+
+
+def save(fig, path):
     fig.savefig(path, dpi=160, facecolor=SURFACE)
     plt.close(fig)
 
 
-def point_ci(ax, x, t, color, marker="o", size=9):
-    est, lo, hi, n = t
-    if est != est:
-        return
-    if lo == lo:
-        ax.plot([x, x], [lo, hi], color=color, linewidth=2, solid_capstyle="round", zorder=3)
-    ax.plot(x, est, marker, color=color, markersize=size, markeredgecolor=SURFACE, markeredgewidth=2, zorder=4)
+def fig_heatmap(calls, order, metrics, path):
+    """Stacked bars: for each tier and condition, how many calls ended in each answer outcome."""
+    groups = [("correct", "Gave the true answer", BLUE), ("counterfactual", "Gave the fake value from D1", ORANGE),
+              ("declined", "Declined (abstained / rejected question)", AQUA), ("wrong_guess", "Wrong guess", NEUTRAL)]
+    grp = {"correct": "correct", "counterfactual": "counterfactual", "abstained": "declined", "premise_rejected": "declined",
+           "wrong_guess": "wrong_guess"}
+    tiers = [t for t in TIERS if any(m["tier"] == t for m in metrics.values())]
+    fig, axes = plt.subplots(1, len(tiers), figsize=(5.2 * len(tiers), 6.4), sharey=True, facecolor=SURFACE)
+    axes = np.atleast_1d(axes)
+    for ax, t in zip(axes, tiers):
+        bar_style(ax)
+        ax.yaxis.grid(False)
+        cases = [c for c in order if metrics[c]["tier"] == t]
+        for j, cond in enumerate(CONDS):
+            cnt = Counter(grp.get(r["outcome"], "other") for c in cases for r in calls[(c, cond)].values())
+            total = sum(cnt.values())
+            bottom = 0
+            for key, _, color in groups:
+                k = cnt.get(key, 0)
+                if not k:
+                    continue
+                h = k / total
+                ax.bar(j, h, bottom=bottom, width=0.84, color=color, edgecolor=SURFACE, linewidth=2)
+                if h >= 0.08:
+                    ax.text(j, bottom + h / 2, f"{k}", ha="center", va="center", fontsize=FS, fontweight="bold", color=text_on(color))
+                bottom += h
+        ax.set_xticks(range(len(CONDS)))
+        ax.set_xticklabels([COND_NAMES[c] for c in CONDS], fontsize=11.5, color=INK2)
+        ax.set_title(f"{t.capitalize()} ({len(cases)} cases, {len(cases) * 3} calls per bar)", loc="left", fontsize=FS + 1, color=INK)
+        ax.set_ylim(0, 1)
+        ax.set_yticks([0, 0.25, 0.5, 0.75, 1])
+        ax.set_yticklabels(["0%", "25%", "50%", "75%", "100%"])
+    axes[0].set_ylabel("Share of calls", fontsize=FS, color=INK2)
+    fig.suptitle("What the model answered, by condition (numbers = calls)", x=0.01, ha="left", fontsize=FS + 4, color=INK)
+    fig.legend(handles=[Patch(color=c, label=l) for _, l, c in groups], frameon=False, loc="lower center", ncol=4,
+               fontsize=FS, labelcolor=INK2)
+    fig.tight_layout(rect=(0, 0.08, 1, 0.93))
+    save(fig, path)
 
 
-def case_dots(ax, x, vals, color, rng, width=0.14):
-    v = np.asarray([x_ for x_ in vals if x_ == x_], float)
-    ax.scatter(x + rng.uniform(-width, width, len(v)), v, s=14, color=color, alpha=0.35, linewidths=0, zorder=2)
+def grouped_bars(ax, metrics, tiers, series, gated=False):
+    """series = [(metrics key, legend label, color)]; bars show the pooled share of calls with k/n written above."""
+    w = 0.8 / len(series)
+    for s, (key, _, color) in enumerate(series):
+        for i, t in enumerate(tiers):
+            k, n, _ = tier_cnt(metrics, t, key, gated)
+            x = i + (s - (len(series) - 1) / 2) * w
+            ax.bar(x, k / n if n else 0, width=w * 0.92, color=color, edgecolor=SURFACE, linewidth=2, zorder=3)
+            ax.text(x, k / n + 0.02 if n else 0.02, f"{k}/{n}", ha="center", va="bottom", fontsize=FS - 1, color=INK, fontweight="bold")
+    ax.set_xticks(range(len(tiers)))
+    ax.set_xticklabels([tier_label(metrics, t, gated) for t in tiers], fontsize=FS, color=INK2)
+    ax.set_ylim(0, 1.12)
+    ax.set_yticks([0, 0.25, 0.5, 0.75, 1])
+    ax.set_yticklabels(["0%", "25%", "50%", "75%", "100%"])
+    ax.set_xlim(-0.6, len(tiers) - 0.4)
 
 
 def fig_c4(metrics, tiers, path):
-    fig, ax = plt.subplots(figsize=(6.4, 4.2), facecolor=SURFACE)
-    style(ax)
-    rng = np.random.default_rng(SEED)
-    for i, t in enumerate(tiers):
-        for off, key, color, mk in [(-0.13, "follow", BLUE, "o"), (0.13, "conflict", ORANGE, "s")]:
-            vals = tier_values(metrics, t, key)
-            case_dots(ax, i + off, vals, color, rng, 0.06)
-            point_ci(ax, i + off, boot_mean(vals, f"fig_c4_{t}_{key}"), color, mk)
-    ax.set_xticks(range(len(tiers)))
-    ax.set_xticklabels([f"{t}\n(n={sum(m['tier'] == t for m in metrics.values())})" for t in tiers], color=INK2)
-    ax.set_ylim(-0.03, 1.05); ax.set_xlim(-0.6, len(tiers) - 0.4)
-    ax.set_ylabel("Share of a case's C4 repeats (mean over cases)", color=INK2, fontsize=9)
-    ax.set_title("C4 (counterfactual evidence): behavior by tier\ndots = cases, marks = mean with 95% case-level bootstrap CI",
-                 loc="left", color=INK, fontsize=10)
-    fig.legend(handles=[Line2D([0], [0], marker="o", color=BLUE, linestyle="", markersize=8, label="followed the counterfactual value"),
-                        Line2D([0], [0], marker="s", color=ORANGE, linestyle="", markersize=8, label="noted a conflict")],
-               frameon=False, loc="lower center", ncol=2, fontsize=8.5, labelcolor=INK2)
-    fig.tight_layout(rect=(0, 0.07, 1, 1))
-    fig.savefig(path, dpi=160, facecolor=SURFACE)
-    plt.close(fig)
+    fig, ax = plt.subplots(figsize=(9, 5.6), facecolor=SURFACE)
+    bar_style(ax)
+    series = [("follow", "Used the fake value from D1", BLUE), ("conflict", "Said the documents conflict with what it knows", ORANGE)]
+    grouped_bars(ax, metrics, tiers, series)
+    ax.set_ylabel("Share of calls (k/n = calls out of calls)", fontsize=FS, color=INK2)
+    ax.set_title("When D1 contains a fake value (C4)", loc="left", fontsize=FS + 4, color=INK, pad=14)
+    fig.legend(handles=[Patch(color=c, label=l) for _, l, c in series], frameon=False, loc="lower center", ncol=1,
+               fontsize=FS, labelcolor=INK2)
+    fig.tight_layout(rect=(0, 0.13, 1, 1))
+    save(fig, path)
 
 
 def fig_cfs(metrics, tiers, path):
-    panels = [("cfs", "Citation Faithfulness Score\n(behavioral)"), ("a", "(a) C4: followed\nthe counterfactual"),
-              ("b", "(b) C3: answer differs\nfrom C1"), ("c", "(c) C3: no unsupported\nor near-miss citation")]
-    fig, axes = plt.subplots(1, 4, figsize=(11, 3.9), sharey=True, facecolor=SURFACE)
-    rng = np.random.default_rng(SEED)
-    for ax, (key, title) in zip(axes, panels):
-        style(ax)
-        for i, t in enumerate(tiers):
-            vals = tier_values(metrics, t, key, exclude_gated=True)
-            case_dots(ax, i, vals, BLUE, rng)
-            point_ci(ax, i, boot_mean(vals, f"fig_cfs_{t}_{key}"), BLUE)
-        ax.set_xticks(range(len(tiers)))
-        ax.set_xticklabels([f"{t}\n(n={sum(m['tier'] == t and not m['gated'] for m in metrics.values())})" for t in tiers],
-                           color=INK2, fontsize=8)
-        ax.set_xlim(-0.6, len(tiers) - 0.4); ax.set_ylim(-0.03, 1.05)
-        ax.set_title(title, loc="left", color=INK, fontsize=9)
-    axes[0].set_ylabel("Mean over cases (0 to 1)", color=INK2, fontsize=9)
-    fig.suptitle("Citation Faithfulness Score by tier (dots = cases, marks = mean with 95% case-level bootstrap CI; "
-                 "C5-flagged cases excluded)", x=0.01, ha="left", color=INK, fontsize=10)
-    fig.tight_layout(rect=(0, 0, 1, 0.93))
-    fig.savefig(path, dpi=160, facecolor=SURFACE)
-    plt.close(fig)
+    fig, ax = plt.subplots(figsize=(11, 6), facecolor=SURFACE)
+    bar_style(ax)
+    series = [("a", "(a) C4: used the fake value", BLUE), ("b", "(b) C3: answer changed when the fact sentence was deleted", ORANGE),
+              ("c", "(c) C3: no unsupported citation", AQUA)]
+    grouped_bars(ax, metrics, tiers, series, gated=True)
+    for i, t in enumerate(tiers):
+        sc = nanmean(m["cfs"] for m in metrics.values() if m["tier"] == t)
+        ax.text(i, -0.2, f"Combined score {sc:.2f}", ha="center", va="top", fontsize=FS, color=INK, fontweight="bold",
+                transform=ax.get_xaxis_transform())
+    ax.set_ylabel("Share of calls", fontsize=FS, color=INK2)
+    ax.set_title("Three signals that the answer depended on D1, and their combined score", loc="left", fontsize=FS + 4, color=INK, pad=14)
+    fig.legend(handles=[Patch(color=c, label=l) for _, l, c in series], frameon=False, loc="lower center", ncol=1,
+               fontsize=FS, labelcolor=INK2)
+    fig.tight_layout(rect=(0, 0.17, 1, 1))
+    save(fig, path)
 
 
 def fig_conf(rows, order, outcomes, stats, path):
-    fig, ax = plt.subplots(figsize=(7.2, 4.4), facecolor=SURFACE)
-    style(ax)
-    rng = np.random.default_rng(SEED)
+    names = {"correct": "True answer", "counterfactual": "Fake value from D1", "abstained": "Declined to answer",
+             "premise_rejected": "Rejected the question", "wrong_guess": "Wrong guess"}
+    fig, ax = plt.subplots(figsize=(9.5, 5.2), facecolor=SURFACE)
+    bar_style(ax)
+    ax.yaxis.grid(False)
+    ax.xaxis.grid(True, color=GRID, linewidth=0.8)
     for i, o in enumerate(outcomes):
-        v = np.array([r["conf"] for r in rows if r["outcome"] == o and r["conf"] == r["conf"]])
-        ax.scatter(i + rng.uniform(-0.2, 0.2, len(v)), v + rng.uniform(-0.8, 0.8, len(v)), s=12, color=BLUE, alpha=0.22, linewidths=0, zorder=2)
-        point_ci(ax, i, stats[o], BLUE, size=10)
-    ax.set_xticks(range(len(outcomes)))
-    ax.set_xticklabels([f"{o.replace('_', ' ')}\n({sum(r['outcome'] == o and r['conf'] == r['conf'] for r in rows)} calls)"
-                        for o in outcomes], color=INK2, fontsize=8.5)
-    ax.set_ylim(-4, 104); ax.set_xlim(-0.6, len(outcomes) - 0.4)
-    ax.set_ylabel("Self-reported confidence (0 to 100)", color=INK2, fontsize=9)
-    ax.set_title("Self-reported confidence by answer outcome\ndots = calls, marks = mean with 95% case-level bootstrap CI",
-                 loc="left", color=INK, fontsize=10)
+        n = sum(r["outcome"] == o and r["conf"] == r["conf"] for r in rows)
+        mean_conf = stats[o][0]
+        ax.barh(i, mean_conf, height=0.7, color=BLUE, edgecolor=SURFACE, linewidth=2, zorder=3)
+        ax.text(mean_conf + 1.5, i, f"{mean_conf:.0f}  ({n} calls)", va="center", fontsize=FS, color=INK, fontweight="bold")
+    ax.set_yticks(range(len(outcomes)))
+    ax.set_yticklabels([names.get(o, o.replace("_", " ")) for o in outcomes], fontsize=FS, color=INK2)
+    ax.invert_yaxis()
+    ax.set_xlim(0, 125)
+    ax.set_xticks([0, 25, 50, 75, 100])
+    ax.set_xlabel("Average self-reported confidence (0 to 100)", fontsize=FS, color=INK2)
+    ax.set_title("How confident the model said it was, by what it answered", loc="left", fontsize=FS + 4, color=INK, pad=14)
     fig.tight_layout()
-    fig.savefig(path, dpi=160, facecolor=SURFACE)
-    plt.close(fig)
+    save(fig, path)
 
 
 # ---------- report ----------

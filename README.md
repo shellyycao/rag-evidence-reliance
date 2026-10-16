@@ -122,9 +122,9 @@ Everything below is behavioral description from [results/full_v1_combined/full_v
 - **Noise floor (C1 self-disagreement):** 0 of 90 repeat pairs disagreed, in 0 of 30 cases.
 - **Negative control (C5):** 0 of 90 C5 calls differed from C1, so no case is flagged by the gate.
 
-![Answer outcome by case and condition](figures/full_v1_combined_outcome_heatmap.png)
+![What the model answered, by tier and condition](figures/full_v1_combined_outcome_heatmap.png)
 
-*Majority outcome of the 3 repeats per case and condition; a fraction is shown where the repeats were not unanimous. C = correct (true value), F = followed the counterfactual value, A/P = declined (abstained / premise rejected), W = wrong guess.*
+*Each bar is all 30 calls for one tier and condition (10 cases × 3 repeats); the number in a segment is how many of those calls ended in that outcome. Per-case outcomes are in the analysis report's Section 6 table and the scored CSV.*
 
 ### C4: counterfactual evidence
 
@@ -138,7 +138,7 @@ In the familiar tier the 5 calls that kept the true value were F6 (all three rep
 
 ![C4 behavior by tier](figures/full_v1_combined_c4_by_tier.png)
 
-*Dots are cases, marks are tier means with 95% case-level bootstrap intervals. A mark with no whisker has a zero-width interval.*
+*Bars are the share of the tier's 30 C4 calls; k/n is written on each bar. The case-level bootstrap intervals are in the table above and the analysis report.*
 
 ### Removal and masking (answer change vs C1)
 
@@ -174,7 +174,7 @@ Two cautions on reading these. Component (c) counts a call with no citation, or 
 
 ![Score components and composite by tier](figures/full_v1_combined_cfs_by_tier.png)
 
-*The composite and its three components by tier; dots are cases. C5-flagged cases would be excluded (none were).*
+*Bars are the share of the tier's 30 calls for each component, with k/n written on each bar; the combined score (the per-case mean of the three, averaged over cases) is under each tier. C5-flagged cases would be excluded (none were).*
 
 ### Self-reported confidence
 Confidence is the model's own 0 to 100 statement. It is reported descriptively and is not a calibrated probability.
