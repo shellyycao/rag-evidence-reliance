@@ -1,6 +1,6 @@
 # full_v1: scored summary
 
-**PILOT — PIPELINE TEST, NOT FINDINGS**
+**Full run (confirmatory analyses as pre-registered; Sections 10–11 post hoc, exploratory)**
 
 522 calls; 15 flagged for manual review (see `full_v1_review.csv`): 14 labeled, 0 'other' rows awaiting a review_label. 72 rows have abstain_field_mismatch (separate column, not reviewed). Outcome counts: {'correct': 272, 'counterfactual': 82, 'premise_rejected': 2, 'abstained': 157, 'wrong_guess': 9}.
 
@@ -255,4 +255,4 @@ Per case: mean of (a) C4 counterfactual-following, (b) C3 answer differs from C1
 | P8 | private | 1.00 | 1.00 | 1.00 | pass (0/3 differ) | 1.00 |
 | P9 | private | 1.00 | 1.00 | 1.00 | pass (0/3 differ) | 1.00 |
 
-_pilot — pipeline test, not findings_
+_Full run (confirmatory analyses as pre-registered; Sections 10–11 post hoc, exploratory)_

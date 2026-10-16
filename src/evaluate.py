@@ -16,7 +16,9 @@ from interventions import matched_form, replace_ci
 
 ROOT = Path(__file__).resolve().parent.parent
 CASES_PATH = ROOT / "data" / "pilot_cases.json"
-LABEL = "pilot — pipeline test, not findings"
+PILOT_LABEL = "pilot — pipeline test, not findings"
+FULL_LABEL = "Full run (confirmatory analyses as pre-registered; Sections 10–11 post hoc, exploratory)"
+LABEL = PILOT_LABEL  # set per run in main(): only pilot and plumbing runs keep the pilot label
 CONDITIONS = ["C0", "C1", "C2", "C3", "C4", "C5"]
 MAX_WORDS = 10
 # Fixed labels for manual review of "other" rows; when filled they replace "other" as the outcome.
@@ -273,6 +275,8 @@ def main():
     args = ap.parse_args()
     src = Path(args.results).resolve()
     stem = src.stem
+    global LABEL
+    LABEL = PILOT_LABEL if stem.startswith(("pilot", "plumbing")) else FULL_LABEL
     cases = {c["case_id"]: c for c in json.loads(Path(args.cases).read_text())}
     records = [json.loads(line) for line in src.read_text().splitlines() if line.strip()]
     review_path = src.parent / f"{stem}_review.csv"
@@ -296,7 +300,7 @@ def main():
     n_pending = sum(r["outcome_auto"] == "other" and not r["review_label"] for r in rows)
 
     outcomes = Counter(r["outcome"] for r in rows)
-    md = [f"# {stem}: scored summary", "", f"**{LABEL.upper()}**", "",
+    md = [f"# {stem}: scored summary", "", f"**{LABEL.upper() if LABEL == PILOT_LABEL else LABEL}**", "",
           f"{len(rows)} calls; {len(review)} flagged for manual review (see `{stem}_review.csv`): {n_labeled} labeled, "
           f"{n_pending} 'other' rows awaiting a review_label. "
           f"{sum(r['abstain_field_mismatch'] for r in rows)} rows have abstain_field_mismatch "

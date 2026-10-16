@@ -1,3 +1,5 @@
+> Superseded by full_v1_combined (30 cases); kept as the record of the original 29-case run.
+
 # full_v1: analysis
 
 Descriptive and behavioral only. No causal or mechanistic claims, and no significance tests; intervals show uncertainty about the mean over cases. This run includes the 9 pilot cases re-run under the full-set position assignment.
@@ -226,10 +228,10 @@ By condition and tier:
 
 ## Figures
 
-- (a) outcome heatmap: `figures/full_v1_outcome_heatmap.png`
-- (b) C4 following and conflict by tier: `figures/full_v1_c4_by_tier.png`
-- (c) Citation Faithfulness Score by tier: `figures/full_v1_cfs_by_tier.png`
-- (d) confidence by outcome: `figures/full_v1_confidence_by_outcome.png`
+- (a) outcome heatmap: `figures/archive_29case/full_v1_outcome_heatmap.png`
+- (b) C4 following and conflict by tier: `figures/archive_29case/full_v1_c4_by_tier.png`
+- (c) Citation Faithfulness Score by tier: `figures/archive_29case/full_v1_cfs_by_tier.png`
+- (d) confidence by outcome: `figures/archive_29case/full_v1_confidence_by_outcome.png`
 
 A mark with no whisker has a zero-width interval (see †).
 
