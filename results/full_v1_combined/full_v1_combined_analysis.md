@@ -228,7 +228,8 @@ By condition and tier:
 
 ## Figures
 
-- (a) outcome heatmap: `figures/full_v1_combined_outcome_heatmap.png`
+- (a) outcome heatmap, one cell per case and condition: `figures/full_v1_combined_outcome_heatmap.png`
+- (a2) outcome counts by tier and condition: `figures/full_v1_combined_outcome_by_tier.png`
 - (b) C4 following and conflict by tier: `figures/full_v1_combined_c4_by_tier.png`
 - (c) Citation Faithfulness Score by tier: `figures/full_v1_combined_cfs_by_tier.png`
 - (d) confidence by outcome: `figures/full_v1_combined_confidence_by_outcome.png`

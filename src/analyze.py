@@ -247,7 +247,7 @@ def text_on(hex_color):
 
 
 TIER_COLOR = {"familiar": BLUE, "obscure": ORANGE, "private": AQUA, "lucky-guess": NEUTRAL}
-COND_NAMES = {"C0": "No\ndocs", "C1": "Original", "C2": "D1\nremoved", "C3": "Fact\ndeleted", "C4": "Fake\nfact", "C5": "Control\nedit"}
+COND_NAMES = {"C0": "No\ndocs", "C1": "All\ndocs", "C2": "D1\nremoved", "C3": "Fact\ndeleted", "C4": "Fake\nfact", "C5": "Control\nedit"}
 FS = 13  # base font size for all figures
 
 
@@ -266,7 +266,7 @@ def save(fig, path):
     plt.close(fig)
 
 
-def fig_heatmap(calls, order, metrics, path):
+def fig_outcome_bars(calls, order, metrics, path):
     """Stacked bars: for each tier and condition, how many calls ended in each answer outcome."""
     groups = [("correct", "Gave the true answer", BLUE), ("counterfactual", "Gave the fake value from D1", ORANGE),
               ("declined", "Declined (abstained / rejected question)", AQUA), ("wrong_guess", "Wrong guess", NEUTRAL)]
@@ -303,6 +303,51 @@ def fig_heatmap(calls, order, metrics, path):
     fig.legend(handles=[Patch(color=c, label=l) for _, l, c in groups], frameon=False, loc="lower center", ncol=4,
                fontsize=FS, labelcolor=INK2)
     fig.tight_layout(rect=(0, 0.08, 1, 0.93))
+    save(fig, path)
+
+
+def fig_heatmap(calls, order, metrics, path):
+    """One grid: a row per case (grouped by tier), a column per condition, a letter for the majority outcome of the 3 repeats."""
+    group = {"correct": 0, "counterfactual": 1, "abstained": 2, "premise_rejected": 2}
+    colors = [BLUE, ORANGE, AQUA, NEUTRAL]
+    letter = {"correct": "C", "counterfactual": "F", "abstained": "A", "premise_rejected": "P", "wrong_guess": "W",
+              "other": "O", "both": "B", "invalid": "X"}
+    cases = [c for t in TIERS for c in order if metrics[c]["tier"] == t]
+    fig, ax = plt.subplots(figsize=(9.2, 0.46 * len(cases) + 2.6), facecolor=SURFACE)
+    ax.set_facecolor(SURFACE)
+    for i, case in enumerate(cases):
+        for j, cond in enumerate(CONDS):
+            outs = Counter(r["outcome"] for r in calls[(case, cond)].values())
+            top, k = outs.most_common(1)[0]
+            color = colors[group.get(top, 3)]
+            ax.add_patch(plt.Rectangle((j + 0.04, i + 0.06), 0.92, 0.88, color=color, linewidth=0))
+            frac_txt = "" if k == sum(outs.values()) else f" {k}/{sum(outs.values())}"
+            ax.text(j + 0.5, i + 0.52, letter.get(top, "?") + frac_txt, ha="center", va="center",
+                    fontsize=FS if not frac_txt else FS - 1.5, fontweight="bold", color=text_on(color))
+    ax.set_xlim(0, len(CONDS)); ax.set_ylim(len(cases), 0)
+    ax.xaxis.tick_top()
+    ax.set_xticks([j + 0.5 for j in range(len(CONDS))])
+    ax.set_xticklabels([f"{c}\n{COND_NAMES[c]}" for c in CONDS], fontsize=11.5, color=INK2, va="bottom")
+    ax.tick_params(axis="x", length=0, pad=6)
+    ax.set_yticks([i + 0.5 for i in range(len(cases))])
+    ax.set_yticklabels(cases, fontsize=FS - 1, color=INK2)
+    ax.tick_params(axis="y", length=0)
+    for side in ax.spines.values():
+        side.set_visible(False)
+    start = 0
+    for t in [t for t in TIERS if any(metrics[c]["tier"] == t for c in cases)]:
+        n = sum(metrics[c]["tier"] == t for c in cases)
+        if start:
+            ax.plot([0, len(CONDS)], [start, start], color=INK2, linewidth=1.6, clip_on=False)
+        ax.text(len(CONDS) + 0.15, start + n / 2, f"{t.capitalize()}\n(n={n})", va="center", ha="left", fontsize=FS, color=INK2,
+                fontweight="bold", clip_on=False)
+        start += n
+    fig.suptitle("Answer for every case under each condition (majority of 3 repeats)", x=0.02, ha="left", fontsize=FS + 4, color=INK)
+    fig.legend(handles=[Patch(color=BLUE, label="C  correct (true value)"), Patch(color=ORANGE, label="F  followed the counterfactual value"),
+                        Patch(color=AQUA, label="A / P  declined: abstained / premise rejected"), Patch(color=NEUTRAL, label="W  wrong guess")],
+               frameon=False, loc="lower center", bbox_to_anchor=(0.5, 0.0), ncol=2, fontsize=FS - 1, labelcolor=INK2)
+    fig.text(0.02, 0.062, "A fraction such as C 2/3 means the 3 repeats were not unanimous.", fontsize=FS - 2, color=MUTED)
+    fig.tight_layout(rect=(0, 0.085, 0.9, 0.96))
     save(fig, path)
 
 
@@ -704,13 +749,15 @@ def main():
 
     # ----- figures
     figs = {"heatmap": fig_dir / f"{run}_outcome_heatmap.png", "c4": fig_dir / f"{run}_c4_by_tier.png",
-            "cfs": fig_dir / f"{run}_cfs_by_tier.png", "conf": fig_dir / f"{run}_confidence_by_outcome.png"}
+            "bars": fig_dir / f"{run}_outcome_by_tier.png", "cfs": fig_dir / f"{run}_cfs_by_tier.png", "conf": fig_dir / f"{run}_confidence_by_outcome.png"}
     fig_heatmap(calls, order, metrics, figs["heatmap"])
+    fig_outcome_bars(calls, order, metrics, figs["bars"])
     fig_c4(metrics, tiers, figs["c4"])
     fig_cfs(metrics, tiers, figs["cfs"])
     fig_conf(rows, order, [o for o in present if stats[o][0] == stats[o][0]], stats, figs["conf"])
     md += ["## Figures", "",
-           f"- (a) outcome heatmap: `figures/{figs['heatmap'].name}`",
+           f"- (a) outcome heatmap, one cell per case and condition: `figures/{figs['heatmap'].name}`",
+           f"- (a2) outcome counts by tier and condition: `figures/{figs['bars'].name}`",
            f"- (b) C4 following and conflict by tier: `figures/{figs['c4'].name}`",
            f"- (c) Citation Faithfulness Score by tier: `figures/{figs['cfs'].name}`",
            f"- (d) confidence by outcome: `figures/{figs['conf'].name}`", "",

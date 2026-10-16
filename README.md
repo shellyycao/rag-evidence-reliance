@@ -122,9 +122,9 @@ Everything below is behavioral description from [results/full_v1_combined/full_v
 - **Noise floor (C1 self-disagreement):** 0 of 90 repeat pairs disagreed, in 0 of 30 cases.
 - **Negative control (C5):** 0 of 90 C5 calls differed from C1, so no case is flagged by the gate.
 
-![What the model answered, by tier and condition](figures/full_v1_combined_outcome_heatmap.png)
+![Answer for every case under each condition](figures/full_v1_combined_outcome_heatmap.png)
 
-*Each bar is all 30 calls for one tier and condition (10 cases × 3 repeats); the number in a segment is how many of those calls ended in that outcome. Per-case outcomes are in the analysis report's Section 6 table and the scored CSV.*
+*One cell per case and condition, showing the majority outcome of the 3 repeats: C = correct (true value), F = followed the counterfactual value, A/P = declined (abstained / premise rejected), W = wrong guess. A fraction such as C 2/3 means the repeats were not unanimous. Counts by tier and condition are in `figures/full_v1_combined_outcome_by_tier.png`.*
 
 ### C4: counterfactual evidence
 
