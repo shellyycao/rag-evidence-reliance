@@ -57,11 +57,11 @@ The framing comes from Wallat, Heuss, de Rijke and Anand (2025), *Correctness is
 Claude Sonnet 4.6 through the Bedrock Converse API, inference profile `us.anthropic.claude-sonnet-4-6`, region `us-east-1`, temperature 0, extended thinking off, up to 1024 output tokens. The plain model ID fails on Bedrock ("on-demand throughput isn't supported"), so the `us.` profile is used. All settings are fixed across conditions and logged with every call.
 
 ### Cases and tiers
-Twenty-nine independent factual questions, each with a verified answer, a counterfactual value, a source, and three documents: D1 (three sentences: context, target fact, an unrelated sentence), D2 and D3 (distractors, some deliberately near-miss).
+Thirty independent factual questions, each with a verified answer, a counterfactual value, a source, and three documents: D1 (three sentences: context, target fact, an unrelated sentence), D2 and D3 (distractors, some deliberately near-miss).
 
 - **Familiar (10):** well-known facts (for example F3 the largest animal, F7 Apollo 11, F13 general relativity).
 - **Obscure (10):** facts about 2026 events, after the model's training cutoff (for example O11, O14 to O20).
-- **Private (9):** true facts about the researcher that are not public (P1 to P9). Ground truth is certain, and the model cannot have learned them.
+- **Private (10):** true facts about the researcher that are not public (P1 to P10; P10 was added after `full_v1` and run as `full_v1_addendum`). Ground truth is certain, and the model cannot have learned them.
 
 **Tiers are assigned from C0 behavior**, per protocol: a non-private case is *familiar* if C0 was correct in 3 of 3 repeats and *obscure* otherwise; a private case is *private*, or *lucky-guess* (reported separately, never pooled) if C0 was correct 3 of 3. The initial labels were provisional. In this run no case was reclassified and none was a lucky guess.
 
@@ -259,7 +259,7 @@ The scorer marks this citation *unsupported*, because the cited text no longer c
 
 ## Limitations
 
-- **One model, one prompt, a small hand-built set.** There are 10, 10 and 9 cases per tier. Intervals are wide, and many are zero-width because every case agreed.
+- **One model, one prompt, a small hand-built set.** There are 10 cases per tier. Intervals are wide, and many are zero-width because every case agreed.
 - **Repeats are nearly redundant.** At temperature 0 the three C1 repeats never disagreed, so the case, not the call, is the unit of evidence.
 - **Distractors can carry information.** O20's distractor names the other two laureates, which gave the model a cue to answer correctly without D1 (3 C2 calls). Near-miss distractors in other cases may have similar effects.
 - **Tiers are confounded with fact type.** Familiar facts are well known, obscure facts are post-cutoff, and private facts are personal. The tiers also differ in what the model could do at C0 (answer, or abstain). In the obscure and private tiers the model never gave the true value at C0 (it declined, rejected the premise, or guessed wrongly), so "kept the original answer" could not occur there, and those tiers cannot be compared with the familiar tier on that behavior.
