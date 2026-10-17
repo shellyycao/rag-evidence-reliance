@@ -372,7 +372,9 @@ Costs are estimates from the token counts Bedrock returned, at $3.30 per million
 | **full run (`full_v1`)** | **522** | **$3.00** |
 | **P10 addendum (`full_v1_addendum`)** | **18** | **$0.10** |
 | two early single-call tests | 2 | about $0.01 |
-| **Total** | | **about $5.73** of a roughly $25 budget |
+| end-to-end RAG pilot (`rag_gen_pilot`) | 6 | $0.03 |
+| **end-to-end RAG run (`rag_gen_v1`)** | **150** | **$0.88** |
+| **Total** | | **about $6.64** of a roughly $25 budget |
 
 Reproducing only the full run costs about $3. Validation, scoring, analysis and retrieval make no API calls.
 

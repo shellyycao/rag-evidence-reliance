@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Evidence Reliance Poster</title>
+<style>
+  :root {
+    --navy: #12304f; --navy-2: #1d4672; --teal: #1b8a8f; --teal-soft: #dff1f1;
+    --orange: #d9722b; --orange-soft: #fbe9dc; --ink: #1c2630; --muted: #5b6875;
+    --paper: #f6f7f4; --card: #ffffff; --line: #d8dde1;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #2a2f36; }
+  body { min-height: 100vh; display: grid; place-items: center; font-family: "Inter", "Helvetica Neue", Arial, sans-serif; color: var(--ink); }
+
+  /* Poster canvas: 3:2 landscape (36 x 24 in). All sizes are in cqw, so it scales to any screen or print size. */
+  .poster { width: min(100vw, calc(100vh * 3 / 2)); aspect-ratio: 3 / 2; container-type: inline-size;
+            background: var(--paper); display: flex; flex-direction: column; overflow: hidden; }
+
+  header { background: var(--navy); color: #fff; padding: 0.8cqw 1.68cqw; display: flex; flex-direction: column; gap: 0.25cqw; }
+  header h1 { font-size: 2.45cqw; line-height: 1.12; font-weight: 800; letter-spacing: -0.01em; max-width: 92%; }
+  header .tags { font-size: 0.91cqw; color: #9fd6d8; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; }
+
+  main { flex: 1; display: grid; grid-template-columns: 28fr 44fr 28fr; gap: 0.84cqw; padding: 0.84cqw 0.98cqw 0.63cqw; min-height: 0; }
+  .col { display: flex; flex-direction: column; gap: 0.7cqw; min-height: 0; }
+  .col-label { font-size: 0.735cqw; font-weight: 700; letter-spacing: 0.14em; color: var(--teal); text-transform: uppercase; }
+
+  section { background: var(--card); border: 0.07cqw solid var(--line); border-radius: 0.49cqw; padding: 0.84cqw 0.98cqw; }
+  section h2 { font-size: 1.22cqw; color: var(--navy); margin-bottom: 0.42cqw; display: flex; align-items: baseline; gap: 0.49cqw; }
+  section h2 .n { font-size: 0.84cqw; color: #fff; background: var(--navy); border-radius: 0.28cqw; padding: 0.07cqw 0.385cqw; }
+  p, li { font-size: 0.896cqw; line-height: 1.38; }
+  p + p { margin-top: 0.42cqw; }
+  .muted { color: var(--muted); }
+  .small { font-size: 0.735cqw; line-height: 1.35; }
+  b, strong { color: var(--navy); }
+
+  .neq { margin-top: 0.56cqw; background: var(--teal-soft); border-radius: 0.42cqw; padding: 0.63cqw 0.77cqw; font-size: 1.01cqw; font-weight: 700; color: var(--navy); text-align: center; }
+  .neq span { color: var(--orange); }
+
+  /* workflow */
+  .flow { display: flex; flex-direction: column; gap: 0.12cqw; margin-top: 0.28cqw; }
+  .step { display: flex; align-items: center; gap: 0.63cqw; }
+  .step .box { flex: 1; background: var(--navy); color: #fff; border-radius: 0.35cqw; padding: 0.3cqw 0.7cqw; font-size: 0.84cqw; font-weight: 600; }
+  .step .box small { display: block; font-weight: 400; font-size: 0.686cqw; color: #bcd3e6; margin-top: 0.07cqw; }
+  .step.teal .box { background: var(--teal); } .step.teal .box small { color: #d3f0f0; }
+  .arrow { text-align: center; color: var(--teal); font-size: 0.7cqw; line-height: 0.9; padding-left: 0.7cqw; }
+  .conds { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.28cqw; margin-top: 0.35cqw; }
+  .conds div { background: var(--teal-soft); border-radius: 0.28cqw; padding: 0.28cqw 0.42cqw; font-size: 0.7cqw; line-height: 1.25; }
+  .conds b { color: var(--teal); }
+  .conds .ctl { background: var(--orange-soft); } .conds .ctl b { color: var(--orange); }
+
+  /* results */
+  .results { flex: 1; display: flex; flex-direction: column; gap: 0.7cqw; min-height: 0; border-color: var(--navy); border-width: 0.126cqw; }
+  .big { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7cqw; }
+  .stat { border-radius: 0.49cqw; padding: 0.63cqw 0.84cqw; }
+  .stat.t { background: var(--teal); color: #fff; } .stat.o { background: var(--orange); color: #fff; }
+  .stat .num { font-size: 4.34cqw; font-weight: 800; line-height: 1; letter-spacing: -0.02em; }
+  .stat .num small { font-size: 1.82cqw; font-weight: 700; opacity: 0.9; margin-left: 0.21cqw; }
+  .stat .lbl { font-size: 0.91cqw; font-weight: 600; line-height: 1.25; margin-top: 0.28cqw; }
+  .stat .sub { font-size: 0.686cqw; opacity: 0.92; margin-top: 0.21cqw; line-height: 1.25; }
+
+  .figs { flex: 1; display: grid; grid-template-columns: 1fr 0.62fr; gap: 0.77cqw; min-height: 0; }
+  .fig { display: flex; flex-direction: column; min-height: 0; }
+  .fig h3 { font-size: 0.945cqw; color: var(--navy); margin-bottom: 0.35cqw; }
+  .fig .cap { font-size: 0.686cqw; color: var(--muted); margin-top: 0.28cqw; line-height: 1.3; }
+  .heat { flex: 1; min-height: 0; display: flex; justify-content: center; align-items: flex-start; }
+  .heat img { height: 100%; max-width: 100%; object-fit: contain; border-radius: 0.28cqw; border: 0.07cqw solid var(--line); background: #fcfcfb; }
+
+  .bars { display: flex; flex-direction: column; justify-content: space-around; flex: 1; }
+  .tier .tname { font-size: 0.875cqw; font-weight: 700; color: var(--navy); display: flex; justify-content: space-between; }
+  .tier .tname span { color: var(--muted); font-weight: 500; font-size: 0.735cqw; }
+  .track { height: 2.3cqw; background: #e9edf0; border-radius: 0.35cqw; margin-top: 0.21cqw; position: relative; overflow: hidden; }
+  .fill { height: 100%; border-radius: 0.35cqw; display: flex; align-items: center; justify-content: flex-end; padding-right: 0.56cqw; color: #fff; font-weight: 800; font-size: 0.91cqw; }
+  .fill.t { background: var(--teal); } .fill.o { background: var(--orange); }
+  .track.thin { height: 1.35cqw; margin-top: 0.175cqw; }
+  .track.thin .fill { font-size: 0.686cqw; padding-right: 0.35cqw; }
+  .track.thin .fill.zero { background: transparent; color: var(--muted); justify-content: flex-start; padding-left: 0.35cqw; }
+  .legend { display: flex; gap: 0.98cqw; font-size: 0.714cqw; color: var(--muted); margin-top: 0.28cqw; }
+  .legend i { display: inline-block; width: 0.7cqw; height: 0.7cqw; border-radius: 0.14cqw; margin-right: 0.245cqw; vertical-align: -0.07cqw; }
+
+  /* case study */
+  .case { border-color: var(--orange); border-width: 0.126cqw; }
+  .quote { background: #f3f5f7; border-left: 0.245cqw solid var(--navy-2); border-radius: 0.28cqw; padding: 0.49cqw 0.63cqw; font-size: 0.77cqw; line-height: 1.35; margin: 0.35cqw 0; }
+  .del { color: var(--orange); text-decoration: line-through; font-weight: 700; }
+  .verdicts { display: grid; gap: 0.315cqw; margin-top: 0.35cqw; }
+  .v { display: flex; align-items: center; gap: 0.56cqw; border-radius: 0.35cqw; padding: 0.385cqw 0.63cqw; font-size: 0.854cqw; font-weight: 600; }
+  .v .k { min-width: 3.78cqw; font-size: 0.7cqw; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.8; }
+  .v.ok { background: var(--teal-soft); color: #0e5d61; }
+  .v.bad { background: var(--orange-soft); color: #9a4a12; }
+  .v.neutral { background: #eef1f4; color: var(--navy); }
+  ul { padding-left: 1.05cqw; } li + li { margin-top: 0.4cqw; }
+  .col:nth-child(3) li { font-size: 0.98cqw; }
+  .col:nth-child(3) li + li { margin-top: 0.22cqw; }
+
+  .takeaway { background: var(--navy); color: #fff; padding: 0.5cqw 1.68cqw; display: flex; align-items: center; justify-content: space-between; gap: 1.4cqw; }
+  .takeaway .tk { font-size: 0.686cqw; letter-spacing: 0.14em; text-transform: uppercase; color: #9fd6d8; font-weight: 700; }
+  .takeaway .msg { font-size: 1.54cqw; font-weight: 800; line-height: 1.15; flex: 1; }
+  .takeaway .src { font-size: 0.665cqw; color: #b5c7d8; text-align: right; line-height: 1.35; max-width: 15.4cqw; }
+
+  @media print { @page { size: 36in 24in; margin: 0; } html, body { background: none; } .poster { width: 36in; height: 24in; } }
+</style>
+</head>
+<body>
+<div class="poster">
+
+  <header>
+    <h1>To What Extent Do LLMs Actually Rely on Retrieved Evidence When Generating Answers?</h1>
+    <div class="tags">Explainable AI &nbsp;·&nbsp; Evidence Reliance &nbsp;·&nbsp; Citation Faithfulness</div>
+  </header>
+
+  <main>
+    <!-- LEFT -->
+    <div class="col">
+      <div class="col-label">Why &amp; how</div>
+
+      <section>
+        <h2><span class="n">01</span>Motivation</h2>
+        <p>RAG systems attach citations to answers, and readers treat a citation as proof the document produced the answer. A citation can <b>support</b> a claim without having <b>caused</b> it.</p>
+      </section>
+
+      <section>
+        <h2><span class="n">02</span>Introduction</h2>
+        <p><b>Correctness:</b> does the cited document support the claim?<br><b>Faithfulness:</b> did the cited document influence the claim?</p>
+        <div class="neq">Citation correctness <span>≠</span> Citation faithfulness</div>
+        <p class="small muted" style="margin-top:0.8cqw">Framing from Wallat, Heuss, de Rijke &amp; Anand (ICTIR 2025). This project is a small black-box adaptation: it edits the evidence and watches the behavior.</p>
+      </section>
+
+      <section style="flex:1">
+        <h2><span class="n">03</span>Method</h2>
+        <p><b>30 questions</b> (10 familiar, 10 obscure, 10 private) &middot; <b>6 evidence conditions</b> &middot; 3 repeats &middot; <b>540 calls</b> to Claude Sonnet 4.6 on AWS Bedrock.</p>
+        <p class="small muted" style="margin-top:0.5cqw"><b>Figure 1</b> &nbsp;Experimental workflow</p>
+        <div class="flow">
+          <div class="step"><div class="box">Question<small>tier set by the no-document answer</small></div></div>
+          <div class="arrow">▼</div>
+          <div class="step"><div class="box">Documents D1 + D2 + D3<small>D1 holds the answer; D2, D3 are distractors</small></div></div>
+          <div class="arrow">▼</div>
+          <div class="step teal"><div class="box">Evidence edit, C0 to C5<small>remove, delete, replace, or leave alone</small></div></div>
+          <div class="arrow">▼</div>
+          <div class="step"><div class="box">LLM, fixed settings<small>answer + cited docs + confidence</small></div></div>
+          <div class="arrow">▼</div>
+          <div class="step teal"><div class="box">Behavior analysis<small>did the answer or citation change?</small></div></div>
+        </div>
+        <div class="conds">
+          <div><b>C0</b> no docs</div><div><b>C1</b> original</div><div><b>C2</b> D1 removed</div>
+          <div><b>C3</b> key sentence deleted</div><div><b>C4</b> fake value swapped in</div><div class="ctl"><b>C5</b> control edit</div>
+        </div>
+      </section>
+    </div>
+
+    <!-- CENTER -->
+    <div class="col">
+      <div class="col-label">Main findings</div>
+      <section class="results">
+        <h2><span class="n">04</span>Results</h2>
+
+        <div class="big">
+          <div class="stat t">
+            <div class="num">83%</div>
+            <div class="lbl">of familiar-fact calls followed the fake evidence</div>
+            <div class="sub">25 of 30 calls in C4, even though the model answered all 30 correctly with no documents</div>
+          </div>
+          <div class="stat o">
+            <div class="num">15<small>/30</small></div>
+            <div class="lbl">familiar-fact calls called the document false, yet followed it</div>
+            <div class="sub">The model said the evidence was wrong and still gave its answer. Exploratory, post hoc coding of what the model said.</div>
+          </div>
+        </div>
+
+        <div class="figs">
+          <div class="fig">
+            <h3>Figure 2 &nbsp;Counterfactual following by knowledge tier</h3>
+            <div class="bars">
+              <div class="tier">
+                <div class="tname">Familiar <span>10 cases, 30 calls</span></div>
+                <div class="track"><div class="fill t" style="width:83.3%">25/30</div></div>
+                <div class="track thin"><div class="fill o" style="width:86.7%">26/30 noted a conflict</div></div>
+              </div>
+              <div class="tier">
+                <div class="tname">Obscure <span>10 cases, 30 calls</span></div>
+                <div class="track"><div class="fill t" style="width:100%">30/30</div></div>
+                <div class="track thin"><div class="fill o" style="width:10%"></div><div class="fill zero" style="position:absolute;left:10%;top:0;width:auto">3/30 noted a conflict</div></div>
+              </div>
+              <div class="tier">
+                <div class="tname">Private <span>10 cases, 30 calls</span></div>
+                <div class="track"><div class="fill t" style="width:100%">30/30</div></div>
+                <div class="track thin"><div class="fill zero">0/30 noted a conflict</div></div>
+              </div>
+            </div>
+            <div class="legend"><span><i style="background:var(--teal)"></i>used the fake value from D1</span><span><i style="background:var(--orange)"></i>said the documents conflict with what it knows</span></div>
+            <p class="cap" style="margin-top:1cqw">Removing D1 or deleting its key sentence changed 0/30 familiar answers but 27 to 30 of 30 obscure and private ones. A control edit changed 0 of 90 answers.</p>
+          </div>
+
+          <div class="fig">
+            <h3>Figure 3 &nbsp;Answer outcomes, C0 to C5</h3>
+            <div class="heat"><img src="poster_heatmap.png" alt="Heatmap of answer outcome for every case under each condition"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="col">
+      <div class="col-label">Interpretation</div>
+
+      <section class="case">
+        <h2><span class="n">05</span>Case study: <i>Romeo and Juliet</i></h2>
+        <p class="small muted">Who wrote <i>Romeo and Juliet</i>? Condition C3, same result in all 3 repeats.</p>
+        <div class="quote">“It is a tragedy about two young lovers from feuding families. <span class="del">It was written by William Shakespeare.</span> The play is set in Verona.”</div>
+        <div class="verdicts">
+          <div class="v neutral"><span class="k">Evidence</span>author sentence deleted</div>
+          <div class="v ok"><span class="k">Answer</span>William Shakespeare ✓</div>
+          <div class="v bad"><span class="k">Citation</span>Doc 2, unsupported ✗</div>
+        </div>
+        <div class="quote" style="margin-top:0.7cqw"><b>Model's own explanation:</b> “Doc 2 … does not explicitly name the author. However, it is universally known that William Shakespeare wrote <i>Romeo and Juliet</i>.”</div>
+        <p class="small">The citation field lists a document that the explanation says lacks the answer. This happened in 9 of 9 unsupported C3 citations.</p>
+      </section>
+
+      <section>
+        <h2><span class="n">06</span>Limitations</h2>
+        <ul>
+          <li><b>One model</b>, one prompt</li>
+          <li><b>30 cases</b>, 10 per tier</li>
+          <li><b>Black-box:</b> cannot say <i>why</i> an answer changed</li>
+          <li><b>Synthetic evidence:</b> three short documents</li>
+          <li>Contradiction labels are post hoc, with no second rater</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2><span class="n">07</span>Next steps</h2>
+        <ul>
+          <li>Cross-model tests, including open-weight models</li>
+          <li>Source prioritization: prompt vs. documents vs. memory</li>
+          <li>Recommendation traceability: which sources shaped a decision?</li>
+        </ul>
+      </section>
+
+      <section style="margin-top:auto;padding:0.9cqw 1.3cqw" class="small">
+        <b>Code, protocol and full analysis:</b><br>github.com/shellyycao/rag-evidence-reliance
+      </section>
+    </div>
+  </main>
+
+  <div class="takeaway">
+    <div class="tk">Takeaway</div>
+    <div class="msg">Recognizing false evidence does not always prevent following it.</div>
+    <div class="src">Behavioral description of one model (Claude Sonnet 4.6), 540 calls. No claim about internal reasoning.</div>
+  </div>
+
+</div>
+</body>
+</html>

@@ -76,4 +76,5 @@ def make_record(*, run_name, cond, repeat, model_id, region, settings, prompt_ve
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "status": status,
         "error": error,
+        **(cond.get("extra") or {}),  # optional run-specific fields (e.g. retrieval info in the RAG-generation mode)
     }

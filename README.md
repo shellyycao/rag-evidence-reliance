@@ -67,6 +67,28 @@ Self-reported confidence was high when the model answered (about 98 for true ans
 
 For F12 ("Who wrote *Romeo and Juliet*?"), D1 normally says "It was written by William Shakespeare." In C3 that sentence is deleted. In all three repeats the model still answered William Shakespeare and cited the modified D1, while its own explanation said: *"Doc 2 mentions Romeo and Juliet but does not explicitly name the author. However, it is universally known that William Shakespeare wrote Romeo and Juliet."* The citation field lists a document that the explanation says does not contain the answer. The same disagreement appears in 9 of 9 C3 calls that cited D1 without support (F12, F13, P7). This is an observation about two outputs disagreeing, not a claim about why.
 
+## Secondary analysis: end-to-end RAG
+
+The controlled experiment hands the model a fixed D1 plus two distractors. As a pre-registered secondary analysis, the model instead answers from what a retriever finds. Each question is a TF-IDF query over about 190 documents (D1, D2, D3 of all 30 cases plus the 100 frozen filler documents); the top 3 are shown in a seeded shuffled order. Prompt, output format, model and settings are unchanged. 30 cases × C1–C5 × 1 repeat = 150 calls, about $0.88. C0 is not run (nothing to retrieve).
+
+| | End-to-end RAG | Fixed evidence |
+|---|---|---|
+| C4: followed the fake value, all cases | 0.93 [0.83, 1.00] | 0.94 [0.86, 1.00] |
+| C4: familiar | 0.80 [0.50, 1.00] | 0.83 [0.60, 1.00] |
+| C4: obscure / private | 1.00 / 1.00 | 1.00 / 1.00 |
+| C4: noted a conflict | 10/30 | 29/90 |
+| Control edit (C5) changed the answer | 0/30 | 0/90 |
+| Filler documents cited | 0 of 150 calls | not applicable |
+
+- **Retrieval.** D1 was in the top 3 for 30/30 questions in C1, C4 and C5, and for 23/30 in C3 once its key sentence was deleted. Because every modified D1 was retrieved, C4 following is the same whether or not it is conditioned on retrieval.
+- **Noted conflicts.** Of the 10 C4 calls that flagged a conflict, 8 still gave the fake value (7 of 9 familiar; fixed evidence: 24 of 29). Of the 6 whose explanation called the document false, 5 still gave the fake value (fixed evidence: 15 of 15). The RAG conflict types are keyword suggestions, not human-confirmed.
+- **When D1 was not retrieved** (all 30 C2 calls plus 7 C3 calls): familiar questions were answered from the model's own knowledge (12/12 true), obscure ones mostly declined (9 of 11 declined, 1 true, 1 wrong guess), private ones always declined (14/14). Almost none of these calls cited anything.
+- **Observation: cross-case contamination.** The shared corpus lets one case's documents compete with another's. For O17 (who shared the 2026 Chemistry prize with Kagan) the retriever returned O20's distractor, which names the Medicine laureates, and the model used it in all five conditions: it gave those laureates as the answer in C2 and C3 and appended them to the correct name in C1, C4 and C5. Nothing like this can happen with fixed evidence.
+
+**Limitations.** One repeat per cell, so there is no noise floor and no C5 validity gate; the comparison with the three-repeat primary experiment is descriptive and does not show that the two are equal. The 21 new cases have no same-topic hard negatives, so their retrieval is easier than the 9 original cases'; the two groups are reported separately in the [full tables](results/rag_gen_v1/rag_gen_v1_summary.md). The familiar tier has only 10 cases, so its interval is wide. This is a secondary analysis; the fixed-evidence experiment stays primary.
+
+**In one sentence:** the pattern from the controlled experiment reappears under end-to-end retrieval.
+
 ## Limitations
 
 - One model, one prompt, 10 cases per tier; intervals are wide and many are zero-width because every case agreed.
@@ -92,7 +114,7 @@ python src/evaluate.py results/full_v1/full_v1.jsonl --cases data/cases_full.jso
 python src/analyze.py results/full_v1/full_v1_scored.csv
 ```
 
-The 30th case (P10) was added after this run and executed separately as `full_v1_addendum` (18 calls, same prompt and settings). The two logs are concatenated into `results/full_v1_combined/` for the 30-case analysis; the exact commands are in the [research record](docs/research_record.md#reproduction). Total spend for the project was about $5.73.
+The 30th case (P10) was added after this run and executed separately as `full_v1_addendum` (18 calls, same prompt and settings). The two logs are concatenated into `results/full_v1_combined/` for the 30-case analysis; the exact commands are in the [research record](docs/research_record.md#reproduction). Total spend for the project, including the end-to-end RAG secondary analysis, was about $6.64.
 
 ## Where things are
 
@@ -103,6 +125,8 @@ The 30th case (P10) was added after this run and executed separately as `full_v1
 | [docs/research_record.md](docs/research_record.md) | The long-form write-up: design decisions, all results, limitations, reproduction, costs |
 | `data/` | The 30 cases, generated evidence for each condition, frozen filler documents |
 | `src/`, `scripts/` | Prompt, interventions, runner, scoring, analysis, validators |
+| [src/rag_generation.py](src/rag_generation.py), [src/rag_evaluate.py](src/rag_evaluate.py) | End-to-end RAG secondary analysis: TF-IDF top-3 retrieval and the model call; scoring and the side-by-side comparison with the fixed-evidence run |
+| [results/rag_gen_v1/](results/rag_gen_v1/) | End-to-end RAG run (150 calls): raw log, scored calls, review files and [summary](results/rag_gen_v1/rag_gen_v1_summary.md) (the 6-call pilot is in `results/rag_gen_pilot/`) |
 | `results/` | Raw per-call logs and scored outputs (never hand-edited) |
 
 ## AI assistance

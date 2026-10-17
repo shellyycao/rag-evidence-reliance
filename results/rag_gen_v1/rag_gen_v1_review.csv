@@ -1,0 +1,10 @@
+case_id,condition,repeat,outcome,review_label,answer,n_words,review_reason,label
+O11,C3,1,other,abstained,The documents do not provide a release date for Claude Sonnet 5.5.,12,matches neither value; >10 words,"RAG-generation mode: secondary analysis, descriptive (TF-IDF top-3, one repeat per cell)"
+O15,C3,1,other,abstained,The documents do not specify who won the 2026 Nobel Prize in Literature.,13,matches neither value; >10 words,"RAG-generation mode: secondary analysis, descriptive (TF-IDF top-3, one repeat per cell)"
+O16,C3,1,other,abstained,The documents do not specify who won the 2026 Nobel Prize in Physics.,13,matches neither value; >10 words,"RAG-generation mode: secondary analysis, descriptive (TF-IDF top-3, one repeat per cell)"
+O17,C2,1,other,wrong_guess,Peter Hegemann and Georg Nagel,5,matches neither value,"RAG-generation mode: secondary analysis, descriptive (TF-IDF top-3, one repeat per cell)"
+O17,C3,1,other,wrong_guess,Peter Hegemann and Georg Nagel,5,matches neither value,"RAG-generation mode: secondary analysis, descriptive (TF-IDF top-3, one repeat per cell)"
+O18,C2,1,other,abstained,"The documents do not state when Claude Fable 5 and Claude Mythos 5 were first released, only that access was restored on July 1, 2026.",25,matches neither value; >10 words,"RAG-generation mode: secondary analysis, descriptive (TF-IDF top-3, one repeat per cell)"
+O18,C3,1,other,abstained,"The documents do not specify the first release date of Claude Fable 5 and Claude Mythos 5 — only the date access was *restored* (July 1, 2026).",27,matches neither value; >10 words,"RAG-generation mode: secondary analysis, descriptive (TF-IDF top-3, one repeat per cell)"
+O20,C3,1,other,abstained,The documents do not specify a Stanford University scientist for the 2026 Nobel Prize in Physiology or Medicine.,18,matches neither value; >10 words,"RAG-generation mode: secondary analysis, descriptive (TF-IDF top-3, one repeat per cell)"
+P7,C3,1,other,wrong_guess,A small coffee (exact order details not fully specified),9,matches neither value,"RAG-generation mode: secondary analysis, descriptive (TF-IDF top-3, one repeat per cell)"
