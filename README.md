@@ -4,6 +4,10 @@ An Explainable AI (XAI) experiment, not a RAG chatbot. It studies one dimension 
 
 A citation can be *correct* (the cited document supports the claim) without being *faithful* (the document influenced the claim). This project edits the evidence a model sees and watches how its answers and citations respond. It uses Claude Sonnet 4.6 on AWS Bedrock and 30 hand-built questions. Everything here is behavioral description of one model, not a claim about its internal mechanisms.
 
+## Why this matters
+
+RAG systems power AI search, research, medical and legal assistants, and their citations are often the main way users check an answer. Citations also increase user trust, even when they are irrelevant (Ding et al., 2025). If a model follows a wrong or maliciously planted document while citing it confidently, users have little reason to doubt the answer; if it answers from memory while citing a document that does not contain the answer, the citation misrepresents where the answer came from. Both failures matter to end users, to builders who treat citations as an explanation or audit trail, and to anyone deploying RAG in high-stakes settings.
+
 ## Key findings
 
 540 model calls: 30 cases × 6 conditions × 3 repeats, all completed with no errors.
@@ -26,6 +30,13 @@ A citation can be *correct* (the cited document supports the claim) without bein
 
 Further hypotheses (knowledge conflicts, source prioritization, other models) are planned for Project 2. The protocol numbers them across the whole program, so H2 appears there as H6.
 
+## Related work
+
+- **Lewis et al. (2020)**, *Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks* (NeurIPS): introduced RAG.
+- **Wallat et al. (2025)**, *Correctness is not Faithfulness in RAG Attributions* (ICTIR): distinguishes citation correctness from faithfulness; this project adapts its idea as a black-box intervention study.
+- **Ding et al. (2025)**, *Citations and Trust in LLM Generated Responses* (AAAI): citations raise user trust, even irrelevant ones.
+- **Turpin et al. (2023)**, *Language Models Don't Always Say What They Think* (NeurIPS): model explanations can be unfaithful to what drives their outputs, which parallels the citation–explanation mismatch here.
+
 ## How it works
 
 **Cases.** 30 questions, each with a three-sentence supporting document (D1) and two distractors (D2, D3). Tiers are assigned from what the model answers with *no* documents:
@@ -47,9 +58,9 @@ Further hypotheses (knowledge conflicts, source prioritization, other models) ar
 | C4 | Replacement | The key value in D1 swapped for a fake one |
 | C5 | Negative control | An unrelated sentence in D1 edited |
 
-The primary experiment uses fixed, researcher-controlled evidence sets to isolate the effect of document changes on model responses. A separate TF-IDF retrieval analysis (9 pilot cases, in the [research record](docs/research_record.md)) evaluates whether relevant documents can be retrieved from a larger corpus.
+The primary experiment uses fixed, researcher-controlled evidence sets to isolate the effect of document changes on model responses. A pre-registered secondary analysis repeats C1–C5 with end-to-end retrieval: a TF-IDF retriever picks the top 3 documents from a ~190-document corpus (see [Secondary analysis](#secondary-analysis-end-to-end-rag)).
 
-The model returns an answer, the documents it cites, an abstention flag, a conflict flag and a 0 to 100 confidence. D1's position is counterbalanced across cases (seed 590). Intervals are case-level bootstrap (10,000 resamples). The design follows Wallat, Heuss, de Rijke and Anand (2025), [*Correctness is not Faithfulness in RAG Attributions*](https://doi.org/10.1145/3731120.3744592), as a small black-box adaptation, not a reproduction.
+The model returns an answer, the documents it cites, an abstention flag, a conflict flag and a 0 to 100 confidence. D1's position is counterbalanced across cases (seed 590). Intervals are case-level bootstrap (10,000 resamples). The design follows Wallat, Heuss, de Rijke and Anand (2025), [*Correctness is not Faithfulness in RAG Attributions*](https://doi.org/10.1145/3731120.3744592), as a small black-box adaptation, not a reproduction. The protocol was written before data collection; every later change is recorded in the Deviations Log in [docs/protocol_v1.1.md](docs/protocol_v1.1.md).
 
 ## Results by tier
 
@@ -85,7 +96,7 @@ The controlled experiment hands the model a fixed D1 plus two distractors. As a 
 - **When D1 was not retrieved** (all 30 C2 calls plus 7 C3 calls): familiar questions were answered from the model's own knowledge (12/12 true), obscure ones mostly declined (9 of 11 declined, 1 true, 1 wrong guess), private ones always declined (14/14). Almost none of these calls cited anything.
 - **Observation: cross-case contamination.** The shared corpus lets one case's documents compete with another's. For O17 (who shared the 2026 Chemistry prize with Kagan) the retriever returned O20's distractor, which names the Medicine laureates, and the model used it in all five conditions: it gave those laureates as the answer in C2 and C3 and appended them to the correct name in C1, C4 and C5. Nothing like this can happen with fixed evidence.
 
-**Limitations.** One repeat per cell, so there is no noise floor and no C5 validity gate; the comparison with the three-repeat primary experiment is descriptive and does not show that the two are equal. The 21 new cases have no same-topic hard negatives, so their retrieval is easier than the 9 original cases'; the two groups are reported separately in the [full tables](results/rag_gen_v1/rag_gen_v1_summary.md). The familiar tier has only 10 cases, so its interval is wide. This is a secondary analysis; the fixed-evidence experiment stays primary.
+**Limitations.** One repeat per cell, so there is no noise floor and no C5 validity gate; the comparison with the three-repeat primary experiment is descriptive and does not show that the two are equal. The 21 new cases have no same-topic hard negatives, so their retrieval is easier than the 9 original cases'; the two groups are reported separately in the [full tables](results/rag_gen_v1/rag_gen_v1_summary.md). The familiar tier has only 10 cases, so its interval is wide. Intervals in this section are case-level bootstrap with 2,000 resamples, so they can differ slightly from the 10,000-resample intervals elsewhere. This is a secondary analysis; the fixed-evidence experiment stays primary.
 
 **In one sentence:** the pattern from the controlled experiment reappears under end-to-end retrieval.
 
@@ -99,6 +110,13 @@ The controlled experiment hands the model a fixed D1 plus two distractors. As a 
 - The model under study and the coding assistant are both Anthropic models.
 
 The full list is in the [research record](docs/research_record.md).
+
+## Future work
+
+- **Other models:** test whether following false evidence is specific to Claude or common across LLMs.
+- **Conflicting sources:** measure which source wins when instructions, retrieved documents and pretrained knowledge disagree.
+- **Hidden influence:** test whether false evidence can shift a model's recommendations without appearing in its explanations.
+- **Scale and realism:** more cases per tier, embedding-based retrieval, and temperatures above 0.
 
 ## Reproduction
 
@@ -116,6 +134,20 @@ python src/analyze.py results/full_v1/full_v1_scored.csv
 
 The 30th case (P10) was added after this run and executed separately as `full_v1_addendum` (18 calls, same prompt and settings). The two logs are concatenated into `results/full_v1_combined/` for the 30-case analysis; the exact commands are in the [research record](docs/research_record.md#reproduction). Total spend for the project, including the end-to-end RAG secondary analysis, was about $6.64.
 
+**AWS setup.** Enable model access to Claude Sonnet 4.6 in the Bedrock console (`us-east-1`), then create a profile whose IAM user can call `bedrock:InvokeModel`:
+
+```bash
+aws configure --profile xai-bedrock
+```
+
+**End-to-end RAG (secondary analysis):**
+
+```bash
+python src/rag_generation.py --dry-run     # no API calls; shows retrieval and a sample prompt
+python src/rag_generation.py --confirm     # 150 calls, about $0.88
+python src/rag_evaluate.py results/rag_gen_v1/rag_gen_v1.jsonl   # scoring and side-by-side summary
+```
+
 ## Where things are
 
 | Path | What it holds |
@@ -131,4 +163,4 @@ The 30th case (P10) was added after this run and executed separately as `full_v1
 
 ## AI assistance
 
-This project was built with substantial help from Claude Code (Anthropic's command-line coding assistant), used interactively. The assistant wrote and revised the code, validators, scoring and analysis scripts, and drafts of the protocol amendments and this README, under the researcher's direction. The researcher defined the research question, hypotheses and design, supplied the private-fact cases, made the protocol decisions, approved every API run, and approved the manual review and conflict-type labels. Case facts and sources are in `data/cases_full.json`
+This project was built with substantial help from Claude Code (Anthropic's command-line coding assistant), used interactively. The assistant wrote and revised the code, validators, scoring and analysis scripts, and drafts of the protocol amendments and this README, under the researcher's direction. The researcher defined the research question, hypotheses and design, supplied the private-fact cases, made the protocol decisions, approved every API run, and approved the manual review and conflict-type labels. Case facts and sources are in `data/cases_full.json`.
