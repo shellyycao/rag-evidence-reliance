@@ -33,9 +33,15 @@ Further hypotheses (knowledge conflicts, source prioritization, other models) ar
 ## Related work
 
 - **Lewis et al. (2020)**, *Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks* (NeurIPS): introduced RAG.
+- **Longpre et al. (2021)**, *Entity-Based Knowledge Conflicts in Question Answering* (EMNLP): replaced entities in the context with substitutes and found models often follow the context. The C4 condition is a small version of this substitution.
+- **Xie et al. (2024)**, *Adaptive Chameleon or Stubborn Sloth: Revealing the Behavior of Large Language Models in Knowledge Conflicts* (ICLR): models are often receptive to external evidence that contradicts their memory when it is coherent.
+- **Wu, Wu and Zou (2024)**, *ClashEval: Quantifying the Tug-of-War Between an LLM's Internal Prior and External Evidence* (NeurIPS): measured how often models adopt incorrect retrieved content over a correct prior.
 - **Wallat et al. (2025)**, *Correctness is not Faithfulness in RAG Attributions* (ICTIR): distinguishes citation correctness from faithfulness; this project adapts its idea as a black-box intervention study.
 - **Ding et al. (2025)**, *Citations and Trust in LLM Generated Responses* (AAAI): citations raise user trust, even irrelevant ones.
 - **Turpin et al. (2023)**, *Language Models Don't Always Say What They Think* (NeurIPS): model explanations can be unfaithful to what drives their outputs, which parallels the citation–explanation mismatch here.
+- **Kochelka, Papáček, Dvořák and Dušek (2026)**, *Do LLMs Make More Mistakes If They Do Not Believe the Input Data?* (arXiv 2609.09363, to appear at INLG): in data-to-text generation, tests whether models stay faithful to counterfactual and fictional inputs and finds only a small effect, one that depends on which LLM judge is used. This project works in citation-based question answering and records, within the same answer, whether the model says the evidence is false and still uses it.
+
+Following false context is therefore a known behavior, and a high C4 rate here reproduces it rather than discovering it. These studies mostly score the answer. This project also reads the citation, the conflict flag and the explanation of the same call, and asks whether they agree: of the 15 fixed-evidence C4 calls whose explanation called the document false, all 15 still gave its value, and in 9 of 9 C3 calls that cited D1 without support the explanation said the cited document lacks the answer. These are observations from one model and 30 cases, not a general claim.
 
 ## How it works
 
